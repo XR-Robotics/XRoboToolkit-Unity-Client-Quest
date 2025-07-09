@@ -70,9 +70,9 @@ public class UIOperate : MonoBehaviour
         }
 
         AndroidProxy.CallBack += OnAndroidCallBack;
-// #if UNITY_EDITOR
-//         SetDeviceSN("TestDevice");
-// #endif
+        
+        // Set SN to bypass
+        SetDeviceSN("TestDevice");
     }
 
     private void OnAndroidCallBack(string key, string value)

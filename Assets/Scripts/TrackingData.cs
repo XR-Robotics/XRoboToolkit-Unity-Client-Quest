@@ -5,6 +5,7 @@ using UnityEngine.XR;
 using UnityEngine.XR.Hands;
 using UnityEngine.XR.Management;
 using Unity.Collections;
+using Oculus.Interaction;
 using CommonUsages = UnityEngine.XR.CommonUsages;
 using InputDevice = UnityEngine.XR.InputDevice;
 
@@ -110,7 +111,7 @@ namespace Robot
                 totalData["timeStampNs"] = nsTime;
 
                 // For OpenXR, we determine active input device based on what's available
-                int inputDevice = GetActiveInputDevice();
+                int inputDevice = GetActiveInputDevice(); //1
                 totalData["Input"] = inputDevice;
             }
             catch (System.Exception e)
@@ -160,7 +161,7 @@ namespace Robot
 
             return jsonData;
         }
-
+        
         private int GetActiveInputDevice()
         {
             try
@@ -170,7 +171,8 @@ namespace Robot
                     XRGeneralSettings.Instance.Manager != null &&
                     XRGeneralSettings.Instance.Manager.activeLoader != null)
                 {
-                    var handSubsystem = XRGeneralSettings.Instance.Manager.activeLoader.GetLoadedSubsystem<XRHandSubsystem>();
+                    var handSubsystem = XRGeneralSettings.Instance.Manager.activeLoader
+                        .GetLoadedSubsystem<XRHandSubsystem>();
                     if (handSubsystem != null && handSubsystem.running)
                     {
                         // Check if either hand is actually tracked
@@ -184,8 +186,10 @@ namespace Robot
                 // Check if controllers are connected
                 var leftController = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
                 var rightController = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-                if ((leftController.isValid && leftController.characteristics.HasFlag(InputDeviceCharacteristics.Controller)) ||
-                    (rightController.isValid && rightController.characteristics.HasFlag(InputDeviceCharacteristics.Controller)))
+                if ((leftController.isValid &&
+                     leftController.characteristics.HasFlag(InputDeviceCharacteristics.Controller)) ||
+                    (rightController.isValid &&
+                     rightController.characteristics.HasFlag(InputDeviceCharacteristics.Controller)))
                 {
                     return 1; // ControllerActive equivalent
                 }
@@ -206,45 +210,17 @@ namespace Robot
 
         private JsonData GetLeftRightControllerJsonData(double predictTime)
         {
-            try
-            {
-                // Clear previous data
-                _controllerDataJson = new JsonData();
+            // Get left controller data
+            InputDevice leftController = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+            _leftControllerJson = new JsonData();
+            GetControllerJsonData(leftController, ref _leftControllerJson);
+            _controllerDataJson["left"] = _leftControllerJson;
 
-                // Get left controller data
-                InputDevice leftController = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
-                if (leftController.isValid && leftController.characteristics.HasFlag(InputDeviceCharacteristics.Controller))
-                {
-                    // Get position and rotation
-                    if (leftController.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 leftPosition) &&
-                        leftController.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion leftRotation))
-                    {
-                        _leftControllerJson = new JsonData();
-                        GetControllerJsonData(leftController, ref _leftControllerJson);
-                        _controllerDataJson["left"] = _leftControllerJson;
-                        _controllerDataJson["left"]["pose"] = GetPoseStr(leftPosition, leftRotation);
-                    }
-                }
-
-                // Get right controller data
-                InputDevice rightController = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-                if (rightController.isValid && rightController.characteristics.HasFlag(InputDeviceCharacteristics.Controller))
-                {
-                    // Get position and rotation
-                    if (rightController.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 rightPosition) &&
-                        rightController.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion rightRotation))
-                    {
-                        _rightControllerJson = new JsonData();
-                        GetControllerJsonData(rightController, ref _rightControllerJson);
-                        _controllerDataJson["right"] = _rightControllerJson;
-                        _controllerDataJson["right"]["pose"] = GetPoseStr(rightPosition, rightRotation);
-                    }
-                }
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogWarning($"Controller tracking failed: {e.Message}");
-            }
+            // Get right controller data
+            InputDevice rightController = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+            _rightControllerJson = new JsonData();
+            GetControllerJsonData(rightController, ref _rightControllerJson);
+            _controllerDataJson["right"] = _rightControllerJson;
 
             return _controllerDataJson;
         }
@@ -259,6 +235,9 @@ namespace Robot
             controllerDevice.TryGetFeatureValue(CommonUsages.secondaryButton, out var secondaryButton);
             controllerDevice.TryGetFeatureValue(CommonUsages.menuButton, out var menuButton);
 
+            controllerDevice.TryGetFeatureValue(CommonUsages.devicePosition, out var position);
+            controllerDevice.TryGetFeatureValue(CommonUsages.deviceRotation, out var rotation);
+
             json["axisX"] = axis2D.x;
             json["axisY"] = axis2D.y;
             json["axisClick"] = axisClick;
@@ -267,6 +246,7 @@ namespace Robot
             json["primaryButton"] = primaryButton;
             json["secondaryButton"] = secondaryButton;
             json["menuButton"] = menuButton;
+            json["pose"] = GetPoseStr(position, rotation);
         }
 
 
@@ -284,7 +264,8 @@ namespace Robot
                     return _handData;
                 }
 
-                var handSubsystem = XRGeneralSettings.Instance.Manager.activeLoader.GetLoadedSubsystem<XRHandSubsystem>();
+                var handSubsystem =
+                    XRGeneralSettings.Instance.Manager.activeLoader.GetLoadedSubsystem<XRHandSubsystem>();
                 if (handSubsystem == null || !handSubsystem.running)
                 {
                     return _handData;
@@ -375,7 +356,7 @@ namespace Robot
 
 
 
-        private string GetPoseStr(Vector3 position, Quaternion rotation)
+        private static string GetPoseStr(Vector3 position, Quaternion rotation)
         {
             return position.x.ToString("R") + "," + position.y.ToString("R") + "," + position.z.ToString("R") + "," +
                    rotation.x.ToString("R") + "," + rotation.y.ToString("R") + "," + rotation.z.ToString("R") + "," +
@@ -392,6 +373,7 @@ namespace Robot
         public enum TrackingType
         {
             None = 0,
+
             // Body and Motion tracking would require OpenXR extensions
             // Keeping enum for compatibility but functionality removed
             Body = 1,

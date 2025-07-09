@@ -406,6 +406,8 @@ namespace Robot
                                     FPSDisplay.UpdateTime();
                                     _sendJson["functionName"] = "Tracking";
                                     _sendJson["value"] = msg;
+                                    
+                                    Debug.Log($"TcpHandler: _sendTrackingMsg: {msg}");
 
                                     byte[] data = PackageHandle.Pack(NetCMD.PACKET_CCMD_TO_CONTROLLER_FUNCTION,
                                         Encoding.UTF8.GetBytes(_sendJson.ToJson()));
@@ -424,6 +426,7 @@ namespace Robot
                                         Close();
                                         continue;
                                     }
+                                    Debug.Log($"TcpHandler: _sendTrackingMsg: done");
                                 }
                             }
                             else

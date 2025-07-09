@@ -141,7 +141,7 @@ namespace Robot
                         headDevice.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion rotation))
                     {
                         jsonData["pose"] = GetPoseStr(position, rotation);
-                        jsonData["status"] = 1;
+                        jsonData["status"] = 3; // Match PICO
                     }
                     else
                     {
@@ -322,9 +322,13 @@ namespace Robot
                     // Try to start it if it's not running
                     try
                     {
+                        Debug.Log("Attempting to start hand tracking subsystem...");
+                        handSubsystem.Start();
+
+                        // Give it a moment to initialize
                         if (!handSubsystem.running)
                         {
-                            Debug.Log("Attempting to start hand tracking subsystem...");
+                            Debug.LogWarning("Hand tracking subsystem failed to start");
                         }
                     }
                     catch (System.Exception startEx)
@@ -334,11 +338,21 @@ namespace Robot
                     return _handData;
                 }
 
-                // Add subsystem info for debugging
-                _handData["subsystemRunning"] = handSubsystem.running;
+                // // Add subsystem info for debugging
+                // _handData["subsystemRunning"] = handSubsystem.running;
+
+                // For Quest 3, check if hands are available but not yet tracked
+                // This can happen during the initial seconds after hand tracking starts
+                bool leftHandAvailable = handSubsystem.leftHand != null;
+                bool rightHandAvailable = handSubsystem.rightHand != null;
+                bool leftHandTracked = leftHandAvailable && handSubsystem.leftHand.isTracked;
+                bool rightHandTracked = rightHandAvailable && handSubsystem.rightHand.isTracked;
+
+                Debug.Log($"Hand availability - Left: {leftHandAvailable}, Right: {rightHandAvailable}");
+                Debug.Log($"Hand tracking - Left: {leftHandTracked}, Right: {rightHandTracked}");
 
                 // Get left hand data with additional validation
-                if (handSubsystem.leftHand.isTracked)
+                if (leftHandTracked)
                 {
                     _leftHandData = new JsonData();
                     if (GetXRHandTrackingData(handSubsystem.leftHand, ref _leftHandData))
@@ -349,23 +363,39 @@ namespace Robot
                     else
                     {
                         Debug.LogWarning("Failed to get left hand tracking data despite hand being tracked");
+                        // Still provide the empty structure
+                        _leftHandData = new JsonData();
+                        _leftHandData["isActive"] = 0U;
+                        _leftHandData["count"] = 0U;
+                        _leftHandData["validJointCount"] = 0U;
+                        _leftHandData["scale"] = 1.0f;
+                        _leftHandData["HandJointLocations"] = new JsonData();
+                        _handData["leftHand"] = _leftHandData;
                     }
                 }
                 else
                 {
-                    Debug.Log("Left hand not tracked");
+                    if (leftHandAvailable)
+                    {
+                        Debug.Log("Left hand available but not tracked - this is normal during initialization");
+                    }
+                    else
+                    {
+                        Debug.Log("Left hand not available");
+                    }
+
                     // Provide structure even when not tracked for consistency
                     _leftHandData = new JsonData();
                     _leftHandData["isActive"] = 0U;
                     _leftHandData["count"] = 0U;
                     _leftHandData["validJointCount"] = 0U;
                     _leftHandData["scale"] = 1.0f;
-                    _leftHandData["HandJointLocations"] = new JsonData();
+                    // _leftHandData["HandJointLocations"] = new JsonData();
                     _handData["leftHand"] = _leftHandData;
                 }
 
                 // Get right hand data with additional validation
-                if (handSubsystem.rightHand.isTracked)
+                if (rightHandTracked)
                 {
                     _rightHandData = new JsonData();
                     if (GetXRHandTrackingData(handSubsystem.rightHand, ref _rightHandData))
@@ -376,31 +406,62 @@ namespace Robot
                     else
                     {
                         Debug.LogWarning("Failed to get right hand tracking data despite hand being tracked");
+                        // Still provide the empty structure
+                        _rightHandData = new JsonData();
+                        _rightHandData["isActive"] = 0U;
+                        _rightHandData["count"] = 0U;
+                        _rightHandData["validJointCount"] = 0U;
+                        _rightHandData["scale"] = 1.0f;
+                        // _rightHandData["HandJointLocations"] = new JsonData();
+                        _handData["rightHand"] = _rightHandData;
                     }
                 }
                 else
                 {
-                    Debug.Log("Right hand not tracked");
+                    if (rightHandAvailable)
+                    {
+                        Debug.Log("Right hand available but not tracked - this is normal during initialization");
+                    }
+                    else
+                    {
+                        Debug.Log("Right hand not available");
+                    }
+
                     // Provide structure even when not tracked for consistency
                     _rightHandData = new JsonData();
                     _rightHandData["isActive"] = 0U;
                     _rightHandData["count"] = 0U;
                     _rightHandData["validJointCount"] = 0U;
                     _rightHandData["scale"] = 1.0f;
-                    _rightHandData["HandJointLocations"] = new JsonData();
+                    // _rightHandData["HandJointLocations"] = new JsonData();
                     _handData["rightHand"] = _rightHandData;
                 }
 
-                // Add overall hand tracking status
-                _handData["leftHandTracked"] = handSubsystem.leftHand.isTracked;
-                _handData["rightHandTracked"] = handSubsystem.rightHand.isTracked;
-                _handData["anyHandTracked"] = handSubsystem.leftHand.isTracked || handSubsystem.rightHand.isTracked;
+                // // Add overall hand tracking status
+                // _handData["leftHandTracked"] = leftHandTracked;
+                // _handData["rightHandTracked"] = rightHandTracked;
+                // _handData["anyHandTracked"] = leftHandTracked || rightHandTracked;
+                // _handData["leftHandAvailable"] = leftHandAvailable;
+                // _handData["rightHandAvailable"] = rightHandAvailable;
+                //
+                // // Add Quest 3 specific debugging info
+                // if (handSubsystem.subsystemDescriptor != null)
+                // {
+                //     _handData["subsystemId"] = handSubsystem.subsystemDescriptor.id;
+                // }
+
+                // If no hands are tracked, provide some guidance
+                if (!leftHandTracked && !rightHandTracked)
+                {
+                    Debug.LogWarning("No hands currently tracked. Make sure:");
+                    Debug.LogWarning("1. Hands are visible to Quest 3 cameras");
+                    Debug.LogWarning("2. Hand tracking is enabled in Quest settings");
+                    Debug.LogWarning("3. Lighting conditions are adequate");
+                    Debug.LogWarning("4. Hands are within tracking range (~arm's length)");
+                }
 
                 // Log summary
-                if (_handData.ContainsKey("leftHand") || _handData.ContainsKey("rightHand"))
-                {
-                    Debug.Log($"Hand tracking data obtained. Left: {_handData.ContainsKey("leftHand")}, Right: {_handData.ContainsKey("rightHand")}");
-                }
+                Debug.Log($"Hand tracking summary - Left tracked: {leftHandTracked}, Right tracked: {rightHandTracked}, Subsystem running: {handSubsystem.running}");
             }
             catch (System.Exception e)
             {
@@ -408,10 +469,12 @@ namespace Robot
 
                 // Ensure we always return a valid structure
                 _handData = new JsonData();
-                _handData["subsystemRunning"] = false;
-                _handData["leftHandTracked"] = false;
-                _handData["rightHandTracked"] = false;
-                _handData["anyHandTracked"] = false;
+                // _handData["subsystemRunning"] = false;
+                // _handData["leftHandTracked"] = false;
+                // _handData["rightHandTracked"] = false;
+                // _handData["anyHandTracked"] = false;
+                // _handData["leftHandAvailable"] = false;
+                // _handData["rightHandAvailable"] = false;
 
                 // Add empty hand data structures
                 JsonData emptyHandData = new JsonData();
@@ -419,7 +482,7 @@ namespace Robot
                 emptyHandData["count"] = 0U;
                 emptyHandData["validJointCount"] = 0U;
                 emptyHandData["scale"] = 1.0f;
-                emptyHandData["HandJointLocations"] = new JsonData();
+                // emptyHandData["HandJointLocations"] = new JsonData();
 
                 _handData["leftHand"] = emptyHandData;
                 _handData["rightHand"] = emptyHandData;
@@ -708,16 +771,50 @@ namespace Robot
 
                 if (handSubsystem.running)
                 {
-                    Debug.Log($"Left hand tracked: {handSubsystem.leftHand.isTracked}");
-                    Debug.Log($"Right hand tracked: {handSubsystem.rightHand.isTracked}");
+                    bool leftTracked = handSubsystem.leftHand.isTracked;
+                    bool rightTracked = handSubsystem.rightHand.isTracked;
 
-                    if (handSubsystem.leftHand.isTracked)
+                    Debug.Log($"Left hand tracked: {leftTracked}");
+                    Debug.Log($"Right hand tracked: {rightTracked}");
+
+                    if (leftTracked)
                     {
-                        Debug.Log($"Left hand root pose valid: {handSubsystem.leftHand.rootPose}");
+                        Debug.Log($"Left hand root pose: {handSubsystem.leftHand.rootPose}");
                     }
-                    if (handSubsystem.rightHand.isTracked)
+                    if (rightTracked)
                     {
-                        Debug.Log($"Right hand root pose valid: {handSubsystem.rightHand.rootPose}");
+                        Debug.Log($"Right hand root pose: {handSubsystem.rightHand.rootPose}");
+                    }
+
+                    // If subsystem is running but no hands tracked, provide specific guidance
+                    if (!leftTracked && !rightTracked)
+                    {
+                        Debug.LogWarning("=== HAND TRACKING ISSUE DETECTED ===");
+                        Debug.LogWarning("Subsystem is running but no hands are tracked.");
+                        Debug.LogWarning("This typically means:");
+                        Debug.LogWarning("");
+                        Debug.LogWarning("QUEST 3 DEVICE SETTINGS:");
+                        Debug.LogWarning("1. Open Quest Settings → Hands and Controllers");
+                        Debug.LogWarning("2. Ensure Hand Tracking is enabled");
+                        Debug.LogWarning("3. Set tracking to 'Auto Switch' or 'Hands Only'");
+                        Debug.LogWarning("4. Try toggling hand tracking off and on");
+                        Debug.LogWarning("");
+                        Debug.LogWarning("PHYSICAL ENVIRONMENT:");
+                        Debug.LogWarning("5. Ensure hands are visible to front cameras");
+                        Debug.LogWarning("6. Check lighting - avoid very bright/dark areas");
+                        Debug.LogWarning("7. Keep hands within ~arm's length of headset");
+                        Debug.LogWarning("8. Remove gloves or objects covering hands");
+                        Debug.LogWarning("9. Try different hand positions/gestures");
+                        Debug.LogWarning("");
+                        Debug.LogWarning("APP PERMISSIONS:");
+                        Debug.LogWarning("10. Verify app has hand tracking permission");
+                        Debug.LogWarning("11. Check Android manifest includes hand tracking permission");
+                        Debug.LogWarning("");
+                        Debug.LogWarning("TROUBLESHOOTING STEPS:");
+                        Debug.LogWarning("12. Restart the hand tracking subsystem");
+                        Debug.LogWarning("13. Try switching to controllers and back to hands");
+                        Debug.LogWarning("14. Restart the app");
+                        Debug.LogWarning("15. Restart the Quest device");
                     }
                 }
 
@@ -733,13 +830,17 @@ namespace Robot
                     Debug.Log($"    Valid: {device.isValid}");
                 }
 
-                // Check for Quest-specific permissions (this would need platform-specific code)
-                Debug.Log("=== Recommendations for Quest 3 ===");
-                Debug.Log("1. Ensure hand tracking is enabled in Quest settings");
-                Debug.Log("2. Check that hands are visible to the headset cameras");
-                Debug.Log("3. Verify proper lighting conditions");
-                Debug.Log("4. Make sure the app has hand tracking permissions");
-                Debug.Log("5. Try restarting the hand tracking subsystem");
+                // Check if controllers are interfering
+                var leftController = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                var rightController = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+                bool controllersPresent = (leftController.isValid && leftController.characteristics.HasFlag(InputDeviceCharacteristics.Controller)) ||
+                                        (rightController.isValid && rightController.characteristics.HasFlag(InputDeviceCharacteristics.Controller));
+
+                if (controllersPresent)
+                {
+                    Debug.LogWarning("Controllers detected - they may be interfering with hand tracking");
+                    Debug.LogWarning("Try putting controllers down or switching to 'Hands Only' mode in Quest settings");
+                }
 
             }
             catch (System.Exception e)
@@ -804,6 +905,97 @@ namespace Robot
             catch (System.Exception e)
             {
                 Debug.LogError($"Failed to restart hand tracking: {e.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Attempts to force-enable hand tracking on Quest 3
+        /// This method tries multiple approaches to activate hand tracking
+        /// </summary>
+        public static bool ForceEnableHandTracking()
+        {
+            try
+            {
+                Debug.Log("Attempting to force-enable hand tracking...");
+
+                if (XRGeneralSettings.Instance?.Manager?.activeLoader == null)
+                {
+                    Debug.LogError("Cannot enable hand tracking - XR system not properly initialized");
+                    return false;
+                }
+
+                var handSubsystem = XRGeneralSettings.Instance.Manager.activeLoader
+                    .GetLoadedSubsystem<XRHandSubsystem>();
+
+                if (handSubsystem == null)
+                {
+                    Debug.LogError("Hand tracking subsystem not found - cannot enable");
+                    return false;
+                }
+
+                // Step 1: Ensure subsystem is started
+                if (!handSubsystem.running)
+                {
+                    Debug.Log("Starting hand tracking subsystem...");
+                    handSubsystem.Start();
+
+                    // Wait briefly for initialization
+                    var startTime = Time.unscaledTime;
+                    while (!handSubsystem.running && (Time.unscaledTime - startTime) < 2.0f)
+                    {
+                        System.Threading.Thread.Sleep(50);
+                    }
+                }
+
+                if (!handSubsystem.running)
+                {
+                    Debug.LogError("Failed to start hand tracking subsystem");
+                    return false;
+                }
+
+                Debug.Log("Hand tracking subsystem is running");
+
+                // Step 2: Check if hands are available (may take time on Quest 3)
+                var checkStartTime = Time.unscaledTime;
+                bool handsDetected = false;
+
+                // Give it up to 5 seconds to detect hands
+                while ((Time.unscaledTime - checkStartTime) < 5.0f && !handsDetected)
+                {
+                    if (handSubsystem.leftHand.isTracked || handSubsystem.rightHand.isTracked)
+                    {
+                        handsDetected = true;
+                        break;
+                    }
+
+                    // Log every second to show we're trying
+                    if ((int)(Time.unscaledTime - checkStartTime) % 1 == 0)
+                    {
+                        Debug.Log($"Waiting for hands to be detected... ({(int)(Time.unscaledTime - checkStartTime)}s)");
+                    }
+
+                    System.Threading.Thread.Sleep(100);
+                }
+
+                if (handsDetected)
+                {
+                    Debug.Log("Hand tracking successfully enabled and hands detected!");
+                    return true;
+                }
+                else
+                {
+                    Debug.LogWarning("Hand tracking subsystem is running but no hands detected");
+                    Debug.LogWarning("Make sure:");
+                    Debug.LogWarning("- Hands are visible to Quest 3 cameras");
+                    Debug.LogWarning("- Hand tracking is enabled in Quest device settings");
+                    Debug.LogWarning("- You're in a well-lit environment");
+                    return false;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to force-enable hand tracking: {e.Message}");
                 return false;
             }
         }

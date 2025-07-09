@@ -360,39 +360,39 @@ namespace Robot
                         _handData["leftHand"] = _leftHandData;
                         Debug.Log("Left hand tracking data successfully obtained");
                     }
-                    else
-                    {
-                        Debug.LogWarning("Failed to get left hand tracking data despite hand being tracked");
-                        // Still provide the empty structure
-                        _leftHandData = new JsonData();
-                        _leftHandData["isActive"] = 0U;
-                        _leftHandData["count"] = 0U;
-                        _leftHandData["validJointCount"] = 0U;
-                        _leftHandData["scale"] = 1.0f;
-                        _leftHandData["HandJointLocations"] = new JsonData();
-                        _handData["leftHand"] = _leftHandData;
-                    }
+                    // else
+                    // {
+                    //     Debug.LogWarning("Failed to get left hand tracking data despite hand being tracked");
+                    //     // Still provide the empty structure
+                    //     _leftHandData = new JsonData();
+                    //     _leftHandData["isActive"] = 0U;
+                    //     _leftHandData["count"] = 0U;
+                    //     // _leftHandData["validJointCount"] = 0U;
+                    //     _leftHandData["scale"] = 1.0f;
+                    //     _leftHandData["HandJointLocations"] = new JsonData();
+                    //     _handData["leftHand"] = _leftHandData;
+                    // }
                 }
-                else
-                {
-                    if (leftHandAvailable)
-                    {
-                        Debug.Log("Left hand available but not tracked - this is normal during initialization");
-                    }
-                    else
-                    {
-                        Debug.Log("Left hand not available");
-                    }
-
-                    // Provide structure even when not tracked for consistency
-                    _leftHandData = new JsonData();
-                    _leftHandData["isActive"] = 0U;
-                    _leftHandData["count"] = 0U;
-                    _leftHandData["validJointCount"] = 0U;
-                    _leftHandData["scale"] = 1.0f;
-                    // _leftHandData["HandJointLocations"] = new JsonData();
-                    _handData["leftHand"] = _leftHandData;
-                }
+                // else
+                // {
+                //     if (leftHandAvailable)
+                //     {
+                //         Debug.Log("Left hand available but not tracked - this is normal during initialization");
+                //     }
+                //     else
+                //     {
+                //         Debug.Log("Left hand not available");
+                //     }
+                //
+                //     // Provide structure even when not tracked for consistency
+                //     _leftHandData = new JsonData();
+                //     _leftHandData["isActive"] = 0U;
+                //     _leftHandData["count"] = 0U;
+                //     // _leftHandData["validJointCount"] = 0U;
+                //     _leftHandData["scale"] = 1.0f;
+                //     // _leftHandData["HandJointLocations"] = new JsonData();
+                //     _handData["leftHand"] = _leftHandData;
+                // }
 
                 // Get right hand data with additional validation
                 if (rightHandTracked)
@@ -403,39 +403,39 @@ namespace Robot
                         _handData["rightHand"] = _rightHandData;
                         Debug.Log("Right hand tracking data successfully obtained");
                     }
-                    else
-                    {
-                        Debug.LogWarning("Failed to get right hand tracking data despite hand being tracked");
-                        // Still provide the empty structure
-                        _rightHandData = new JsonData();
-                        _rightHandData["isActive"] = 0U;
-                        _rightHandData["count"] = 0U;
-                        _rightHandData["validJointCount"] = 0U;
-                        _rightHandData["scale"] = 1.0f;
-                        // _rightHandData["HandJointLocations"] = new JsonData();
-                        _handData["rightHand"] = _rightHandData;
-                    }
+                    // else
+                    // {
+                    //     Debug.LogWarning("Failed to get right hand tracking data despite hand being tracked");
+                    //     // Still provide the empty structure
+                    //     _rightHandData = new JsonData();
+                    //     _rightHandData["isActive"] = 0U;
+                    //     _rightHandData["count"] = 0U;
+                    //     // _rightHandData["validJointCount"] = 0U;
+                    //     _rightHandData["scale"] = 1.0f;
+                    //     // _rightHandData["HandJointLocations"] = new JsonData();
+                    //     _handData["rightHand"] = _rightHandData;
+                    // }
                 }
-                else
-                {
-                    if (rightHandAvailable)
-                    {
-                        Debug.Log("Right hand available but not tracked - this is normal during initialization");
-                    }
-                    else
-                    {
-                        Debug.Log("Right hand not available");
-                    }
-
-                    // Provide structure even when not tracked for consistency
-                    _rightHandData = new JsonData();
-                    _rightHandData["isActive"] = 0U;
-                    _rightHandData["count"] = 0U;
-                    _rightHandData["validJointCount"] = 0U;
-                    _rightHandData["scale"] = 1.0f;
-                    // _rightHandData["HandJointLocations"] = new JsonData();
-                    _handData["rightHand"] = _rightHandData;
-                }
+                // else
+                // {
+                //     if (rightHandAvailable)
+                //     {
+                //         Debug.Log("Right hand available but not tracked - this is normal during initialization");
+                //     }
+                //     else
+                //     {
+                //         Debug.Log("Right hand not available");
+                //     }
+                //
+                //     // Provide structure even when not tracked for consistency
+                //     _rightHandData = new JsonData();
+                //     _rightHandData["isActive"] = 0U;
+                //     _rightHandData["count"] = 0U;
+                //     // _rightHandData["validJointCount"] = 0U;
+                //     _rightHandData["scale"] = 1.0f;
+                //     // _rightHandData["HandJointLocations"] = new JsonData();
+                //     _handData["rightHand"] = _rightHandData;
+                // }
 
                 // // Add overall hand tracking status
                 // _handData["leftHandTracked"] = leftHandTracked;
@@ -467,25 +467,25 @@ namespace Robot
             {
                 Debug.LogError($"Hand tracking failed with exception: {e.Message}\nStack trace: {e.StackTrace}");
 
-                // Ensure we always return a valid structure
-                _handData = new JsonData();
-                // _handData["subsystemRunning"] = false;
-                // _handData["leftHandTracked"] = false;
-                // _handData["rightHandTracked"] = false;
-                // _handData["anyHandTracked"] = false;
-                // _handData["leftHandAvailable"] = false;
-                // _handData["rightHandAvailable"] = false;
-
-                // Add empty hand data structures
-                JsonData emptyHandData = new JsonData();
-                emptyHandData["isActive"] = 0U;
-                emptyHandData["count"] = 0U;
-                emptyHandData["validJointCount"] = 0U;
-                emptyHandData["scale"] = 1.0f;
-                // emptyHandData["HandJointLocations"] = new JsonData();
-
-                _handData["leftHand"] = emptyHandData;
-                _handData["rightHand"] = emptyHandData;
+                // // Ensure we always return a valid structure
+                // _handData = new JsonData();
+                // // _handData["subsystemRunning"] = false;
+                // // _handData["leftHandTracked"] = false;
+                // // _handData["rightHandTracked"] = false;
+                // // _handData["anyHandTracked"] = false;
+                // // _handData["leftHandAvailable"] = false;
+                // // _handData["rightHandAvailable"] = false;
+                //
+                // // Add empty hand data structures
+                // JsonData emptyHandData = new JsonData();
+                // emptyHandData["isActive"] = 0U;
+                // emptyHandData["count"] = 0U;
+                // // emptyHandData["validJointCount"] = 0U;
+                // emptyHandData["scale"] = 1.0f;
+                // // emptyHandData["HandJointLocations"] = new JsonData();
+                //
+                // _handData["leftHand"] = emptyHandData;
+                // _handData["rightHand"] = emptyHandData;
             }
 
             return _handData;
@@ -503,7 +503,7 @@ namespace Robot
                 }
 
                 json["isActive"] = hand.isTracked ? 1U : 0U;
-                json["count"] = (uint)XRHandJointID.EndMarker;
+                json["count"] = (uint)XRHandJointID.EndMarker - 1; // first is invalid
                 json["scale"] = 1.0f; // XR Hands doesn't provide scale directly
 
                 JsonData jointLocationsJson = new JsonData();
@@ -535,30 +535,31 @@ namespace Robot
 
                             // Enhanced tracking state mapping for Quest 3
                             uint status = GetOpenXRTrackingStatus(joint.trackingState);
-                            jointJson["s"] = status;
+                            jointJson["s"] = ((ulong)status);
 
-                            // Try to get radius with fallback
-                            if (joint.TryGetRadius(out float radius) && radius > 0)
-                            {
-                                jointJson["r"] = radius;
-                            }
-                            else
-                            {
-                                // Use joint-specific default radii for better Quest 3 compatibility
-                                jointJson["r"] = GetDefaultJointRadius(jointID);
-                            }
+                            // // Try to get radius with fallback
+                            // if (joint.TryGetRadius(out float radius) && radius > 0)
+                            // {
+                            //     jointJson["r"] = radius;
+                            // }
+                            // else
+                            // {
+                            //     // Use joint-specific default radii for better Quest 3 compatibility
+                            //     jointJson["r"] = GetDefaultJointRadius(jointID);
+                            // }
+                            jointJson["r"] = 0.0f;
 
                             jointLocationsJson.Add(jointJson);
                             successfulJoints++;
                         }
-                        else
-                        {
-                            // For debugging: log which joints fail to get poses
-                            if (i % 5 == 0) // Only log every 5th joint to avoid spam
-                            {
-                                Debug.LogWarning($"Failed to get pose for joint {jointID} (index {i})");
-                            }
-                        }
+                        // else
+                        // {
+                        //     // For debugging: log which joints fail to get poses
+                        //     if (i % 5 == 0) // Only log every 5th joint to avoid spam
+                        //     {
+                        //         Debug.LogWarning($"Failed to get pose for joint {jointID} (index {i})");
+                        //     }
+                        // }
                     }
                     catch (System.Exception jointEx)
                     {
@@ -566,19 +567,19 @@ namespace Robot
                     }
                 }
 
-                // Update count with actual valid joints
-                json["validJointCount"] = (uint)successfulJoints;
+                // // Update count with actual valid joints
+                // json["validJointCount"] = (uint)successfulJoints;
 
-                // Log success rate for debugging
-                float successRate = (float)successfulJoints / totalJoints;
-                if (successRate < 0.5f)
-                {
-                    Debug.LogWarning($"Low joint success rate: {successfulJoints}/{totalJoints} ({successRate:P1})");
-                }
-                else
-                {
-                    Debug.Log($"Hand tracking success: {successfulJoints}/{totalJoints} joints ({successRate:P1})");
-                }
+                // // Log success rate for debugging
+                // float successRate = (float)successfulJoints / totalJoints;
+                // if (successRate < 0.5f)
+                // {
+                //     Debug.LogWarning($"Low joint success rate: {successfulJoints}/{totalJoints} ({successRate:P1})");
+                // }
+                // else
+                // {
+                //     Debug.Log($"Hand tracking success: {successfulJoints}/{totalJoints} joints ({successRate:P1})");
+                // }
 
                 return successfulJoints > 0; // Return true if we got at least some joints
             }
@@ -586,13 +587,13 @@ namespace Robot
             {
                 Debug.LogError($"Hand tracking data extraction failed: {e.Message}\nStack trace: {e.StackTrace}");
 
-                // Initialize safe fallback data
-                json["isActive"] = 0U;
-                json["count"] = 0U;
-                json["validJointCount"] = 0U;
-                json["scale"] = 1.0f;
-                json["HandJointLocations"] = new JsonData();
-                json["HandJointLocations"].SetJsonType(JsonType.Array);
+                // // Initialize safe fallback data
+                // json["isActive"] = 0U;
+                // json["count"] = 0U;
+                // // json["validJointCount"] = 0U;
+                // json["scale"] = 1.0f;
+                // json["HandJointLocations"] = new JsonData();
+                // json["HandJointLocations"].SetJsonType(JsonType.Array);
 
                 return false;
             }
@@ -605,28 +606,33 @@ namespace Robot
         {
             uint status = 0;
 
-            // OpenXR hand tracking status flags
-            // Bit 0: Position valid
-            // Bit 1: Position tracked  
-            // Bit 2: Orientation valid
-            // Bit 3: Orientation tracked
-            // Bit 4: Linear velocity valid
-            // Bit 5: Angular velocity valid
+            // Bit layout (semantic mapping based on HandLocationStatus):
+            // Bit 0: Position valid           => 0x01
+            // Bit 1: Position tracked         => 0x02
+            // Bit 2: Orientation valid        => 0x04
+            // Bit 3: Orientation tracked      => 0x08
+            // Bit 4: Linear velocity valid    => 0x10
+            // Bit 5: Angular velocity valid   => 0x20
 
             if (trackingState.HasFlag(XRHandJointTrackingState.Pose))
             {
-                status |= 0x0F; // Position and orientation valid and tracked (bits 0-3)
+                status |= 0x01; // Position valid
+                status |= 0x02; // Position tracked
+                status |= 0x04; // Orientation valid
+                status |= 0x08; // Orientation tracked
             }
+            
+            // This is not support in PICO
 
-            if (trackingState.HasFlag(XRHandJointTrackingState.LinearVelocity))
-            {
-                status |= 0x10; // Linear velocity valid (bit 4)
-            }
-
-            if (trackingState.HasFlag(XRHandJointTrackingState.AngularVelocity))
-            {
-                status |= 0x20; // Angular velocity valid (bit 5)
-            }
+            // if (trackingState.HasFlag(XRHandJointTrackingState.LinearVelocity))
+            // {
+            //     status |= 0x10; // Linear velocity valid (bit 4)
+            // }
+            //
+            // if (trackingState.HasFlag(XRHandJointTrackingState.AngularVelocity))
+            // {
+            //     status |= 0x20; // Angular velocity valid (bit 5)
+            // }
 
             return status;
         }

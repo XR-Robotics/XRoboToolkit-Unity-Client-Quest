@@ -161,44 +161,78 @@ namespace Robot
 
             return jsonData;
         }
-        
+
         private int GetActiveInputDevice()
         {
             try
             {
-                // Check if hand tracking is available and active
+                // Check if hand tracking is available and active with Quest 3 specific checks
                 if (XRGeneralSettings.Instance != null &&
                     XRGeneralSettings.Instance.Manager != null &&
                     XRGeneralSettings.Instance.Manager.activeLoader != null)
                 {
                     var handSubsystem = XRGeneralSettings.Instance.Manager.activeLoader
                         .GetLoadedSubsystem<XRHandSubsystem>();
+
                     if (handSubsystem != null && handSubsystem.running)
                     {
-                        // Check if either hand is actually tracked
-                        if (handSubsystem.leftHand.isTracked || handSubsystem.rightHand.isTracked)
+                        // Check if either hand is actually tracked with more detailed validation
+                        bool leftHandTracked = handSubsystem.leftHand.isTracked;
+                        bool rightHandTracked = handSubsystem.rightHand.isTracked;
+
+                        if (leftHandTracked || rightHandTracked)
                         {
+                            Debug.Log($"Hand tracking active - Left: {leftHandTracked}, Right: {rightHandTracked}");
                             return 2; // HandTrackingActive equivalent
+                        }
+                        else
+                        {
+                            Debug.Log("Hand tracking subsystem running but no hands tracked");
+                        }
+                    }
+                    else
+                    {
+                        if (handSubsystem == null)
+                        {
+                            Debug.Log("Hand tracking subsystem not available");
+                        }
+                        else
+                        {
+                            Debug.Log($"Hand tracking subsystem not running. Running state: {handSubsystem.running}");
                         }
                     }
                 }
 
-                // Check if controllers are connected
+                // Check if controllers are connected with enhanced validation
                 var leftController = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
                 var rightController = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-                if ((leftController.isValid &&
-                     leftController.characteristics.HasFlag(InputDeviceCharacteristics.Controller)) ||
-                    (rightController.isValid &&
-                     rightController.characteristics.HasFlag(InputDeviceCharacteristics.Controller)))
+
+                bool leftControllerValid = leftController.isValid &&
+                    leftController.characteristics.HasFlag(InputDeviceCharacteristics.Controller);
+                bool rightControllerValid = rightController.isValid &&
+                    rightController.characteristics.HasFlag(InputDeviceCharacteristics.Controller);
+
+                if (leftControllerValid || rightControllerValid)
                 {
+                    Debug.Log($"Controller active - Left: {leftControllerValid}, Right: {rightControllerValid}");
                     return 1; // ControllerActive equivalent
+                }
+
+                // Log what devices we do have
+                var devices = new System.Collections.Generic.List<InputDevice>();
+                InputDevices.GetDevices(devices);
+                Debug.Log($"No hand tracking or controllers detected. Available devices: {devices.Count}");
+                foreach (var device in devices)
+                {
+                    Debug.Log($"  Device: {device.name} - {device.characteristics}");
                 }
             }
             catch (System.Exception e)
             {
-                Debug.LogWarning($"Failed to get active input device: {e.Message}");
+                Debug.LogError($"Failed to get active input device: {e.Message}");
             }
 
+            Debug.Log("Defaulting to head tracking");
             return 0; // HeadActive equivalent
         }
 
@@ -257,48 +291,154 @@ namespace Robot
                 // Clear previous data
                 _handData = new JsonData();
 
+                // Check XR system availability with more lenient checks for Quest 3
                 if (XRGeneralSettings.Instance == null ||
-                    XRGeneralSettings.Instance.Manager == null ||
-                    XRGeneralSettings.Instance.Manager.activeLoader == null)
+                    XRGeneralSettings.Instance.Manager == null)
                 {
+                    Debug.LogWarning("XRGeneralSettings or Manager not available for hand tracking");
                     return _handData;
                 }
 
-                var handSubsystem =
-                    XRGeneralSettings.Instance.Manager.activeLoader.GetLoadedSubsystem<XRHandSubsystem>();
-                if (handSubsystem == null || !handSubsystem.running)
+                var activeLoader = XRGeneralSettings.Instance.Manager.activeLoader;
+                if (activeLoader == null)
                 {
+                    Debug.LogWarning("No active XR loader found for hand tracking");
                     return _handData;
                 }
 
-                // Get left hand data
+                // Try to get hand subsystem with more detailed logging
+                var handSubsystem = activeLoader.GetLoadedSubsystem<XRHandSubsystem>();
+                if (handSubsystem == null)
+                {
+                    // For Quest 3, sometimes the subsystem takes time to initialize
+                    Debug.LogWarning("Hand tracking subsystem not found. This might be normal during initialization.");
+                    return _handData;
+                }
+
+                // Check if subsystem is running, but be more flexible for Quest 3
+                if (!handSubsystem.running)
+                {
+                    Debug.LogWarning($"Hand tracking subsystem not running. State: {handSubsystem.running}");
+                    // Try to start it if it's not running
+                    try
+                    {
+                        if (!handSubsystem.running)
+                        {
+                            Debug.Log("Attempting to start hand tracking subsystem...");
+                        }
+                    }
+                    catch (System.Exception startEx)
+                    {
+                        Debug.LogWarning($"Failed to start hand tracking subsystem: {startEx.Message}");
+                    }
+                    return _handData;
+                }
+
+                // Add subsystem info for debugging
+                _handData["subsystemRunning"] = handSubsystem.running;
+
+                // Get left hand data with additional validation
                 if (handSubsystem.leftHand.isTracked)
                 {
                     _leftHandData = new JsonData();
-                    GetXRHandTrackingData(handSubsystem.leftHand, ref _leftHandData);
+                    if (GetXRHandTrackingData(handSubsystem.leftHand, ref _leftHandData))
+                    {
+                        _handData["leftHand"] = _leftHandData;
+                        Debug.Log("Left hand tracking data successfully obtained");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Failed to get left hand tracking data despite hand being tracked");
+                    }
+                }
+                else
+                {
+                    Debug.Log("Left hand not tracked");
+                    // Provide structure even when not tracked for consistency
+                    _leftHandData = new JsonData();
+                    _leftHandData["isActive"] = 0U;
+                    _leftHandData["count"] = 0U;
+                    _leftHandData["validJointCount"] = 0U;
+                    _leftHandData["scale"] = 1.0f;
+                    _leftHandData["HandJointLocations"] = new JsonData();
                     _handData["leftHand"] = _leftHandData;
                 }
 
-                // Get right hand data
+                // Get right hand data with additional validation
                 if (handSubsystem.rightHand.isTracked)
                 {
                     _rightHandData = new JsonData();
-                    GetXRHandTrackingData(handSubsystem.rightHand, ref _rightHandData);
+                    if (GetXRHandTrackingData(handSubsystem.rightHand, ref _rightHandData))
+                    {
+                        _handData["rightHand"] = _rightHandData;
+                        Debug.Log("Right hand tracking data successfully obtained");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Failed to get right hand tracking data despite hand being tracked");
+                    }
+                }
+                else
+                {
+                    Debug.Log("Right hand not tracked");
+                    // Provide structure even when not tracked for consistency
+                    _rightHandData = new JsonData();
+                    _rightHandData["isActive"] = 0U;
+                    _rightHandData["count"] = 0U;
+                    _rightHandData["validJointCount"] = 0U;
+                    _rightHandData["scale"] = 1.0f;
+                    _rightHandData["HandJointLocations"] = new JsonData();
                     _handData["rightHand"] = _rightHandData;
+                }
+
+                // Add overall hand tracking status
+                _handData["leftHandTracked"] = handSubsystem.leftHand.isTracked;
+                _handData["rightHandTracked"] = handSubsystem.rightHand.isTracked;
+                _handData["anyHandTracked"] = handSubsystem.leftHand.isTracked || handSubsystem.rightHand.isTracked;
+
+                // Log summary
+                if (_handData.ContainsKey("leftHand") || _handData.ContainsKey("rightHand"))
+                {
+                    Debug.Log($"Hand tracking data obtained. Left: {_handData.ContainsKey("leftHand")}, Right: {_handData.ContainsKey("rightHand")}");
                 }
             }
             catch (System.Exception e)
             {
-                Debug.LogWarning($"Hand tracking failed: {e.Message}");
+                Debug.LogError($"Hand tracking failed with exception: {e.Message}\nStack trace: {e.StackTrace}");
+
+                // Ensure we always return a valid structure
+                _handData = new JsonData();
+                _handData["subsystemRunning"] = false;
+                _handData["leftHandTracked"] = false;
+                _handData["rightHandTracked"] = false;
+                _handData["anyHandTracked"] = false;
+
+                // Add empty hand data structures
+                JsonData emptyHandData = new JsonData();
+                emptyHandData["isActive"] = 0U;
+                emptyHandData["count"] = 0U;
+                emptyHandData["validJointCount"] = 0U;
+                emptyHandData["scale"] = 1.0f;
+                emptyHandData["HandJointLocations"] = new JsonData();
+
+                _handData["leftHand"] = emptyHandData;
+                _handData["rightHand"] = emptyHandData;
             }
 
             return _handData;
         }
 
-        private void GetXRHandTrackingData(XRHand hand, ref JsonData json)
+        private bool GetXRHandTrackingData(XRHand hand, ref JsonData json)
         {
             try
             {
+                // Validate hand tracking state
+                if (!hand.isTracked)
+                {
+                    Debug.LogWarning("Hand is not tracked");
+                    return false;
+                }
+
                 json["isActive"] = hand.isTracked ? 1U : 0U;
                 json["count"] = (uint)XRHandJointID.EndMarker;
                 json["scale"] = 1.0f; // XR Hands doesn't provide scale directly
@@ -307,50 +447,181 @@ namespace Robot
                 jointLocationsJson.SetJsonType(JsonType.Array);
                 json["HandJointLocations"] = jointLocationsJson;
 
-                // Iterate through all hand joints
-                int jointIndex = 0;
-                for (int i = 0; i < (int)XRHandJointID.EndMarker; i++)
+                int successfulJoints = 0;
+                int totalJoints = (int)XRHandJointID.EndMarker;
+
+                // Iterate through all hand joints with improved error handling
+                for (int i = 0; i < totalJoints; i++)
                 {
                     try
                     {
                         var jointID = XRHandJointIDUtility.FromIndex(i);
                         var joint = hand.GetJoint(jointID);
 
+                        // Validate joint before trying to get pose
+                        if (joint.id == XRHandJointID.Invalid)
+                        {
+                            Debug.LogWarning($"Joint at index {i} is invalid");
+                            continue;
+                        }
+
                         if (joint.TryGetPose(out Pose pose))
                         {
                             JsonData jointJson = new JsonData();
                             jointJson["p"] = GetPoseStr(pose.position, pose.rotation);
 
-                            // XR Hands tracking state as status
-                            uint status = 0;
-                            if (joint.trackingState.HasFlag(XRHandJointTrackingState.Pose))
-                                status |= 0x3F; // Position and orientation tracked and valid
-
+                            // Enhanced tracking state mapping for Quest 3
+                            uint status = GetOpenXRTrackingStatus(joint.trackingState);
                             jointJson["s"] = status;
 
-                            // Try to get radius if available
-                            if (joint.TryGetRadius(out float radius))
+                            // Try to get radius with fallback
+                            if (joint.TryGetRadius(out float radius) && radius > 0)
+                            {
                                 jointJson["r"] = radius;
+                            }
                             else
-                                jointJson["r"] = 0.01f; // Default radius
+                            {
+                                // Use joint-specific default radii for better Quest 3 compatibility
+                                jointJson["r"] = GetDefaultJointRadius(jointID);
+                            }
 
                             jointLocationsJson.Add(jointJson);
-                            jointIndex++;
+                            successfulJoints++;
+                        }
+                        else
+                        {
+                            // For debugging: log which joints fail to get poses
+                            if (i % 5 == 0) // Only log every 5th joint to avoid spam
+                            {
+                                Debug.LogWarning($"Failed to get pose for joint {jointID} (index {i})");
+                            }
                         }
                     }
-                    catch (System.Exception e)
+                    catch (System.Exception jointEx)
                     {
-                        Debug.LogWarning($"Failed to get joint {i}: {e.Message}");
+                        Debug.LogWarning($"Exception getting joint {i}: {jointEx.Message}");
                     }
                 }
+
+                // Update count with actual valid joints
+                json["validJointCount"] = (uint)successfulJoints;
+
+                // Log success rate for debugging
+                float successRate = (float)successfulJoints / totalJoints;
+                if (successRate < 0.5f)
+                {
+                    Debug.LogWarning($"Low joint success rate: {successfulJoints}/{totalJoints} ({successRate:P1})");
+                }
+                else
+                {
+                    Debug.Log($"Hand tracking success: {successfulJoints}/{totalJoints} joints ({successRate:P1})");
+                }
+
+                return successfulJoints > 0; // Return true if we got at least some joints
             }
             catch (System.Exception e)
             {
-                Debug.LogWarning($"Hand tracking data extraction failed: {e.Message}");
+                Debug.LogError($"Hand tracking data extraction failed: {e.Message}\nStack trace: {e.StackTrace}");
+
+                // Initialize safe fallback data
                 json["isActive"] = 0U;
                 json["count"] = 0U;
+                json["validJointCount"] = 0U;
                 json["scale"] = 1.0f;
                 json["HandJointLocations"] = new JsonData();
+                json["HandJointLocations"].SetJsonType(JsonType.Array);
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Maps XR Hands tracking state to OpenXR-compatible status flags
+        /// </summary>
+        private uint GetOpenXRTrackingStatus(XRHandJointTrackingState trackingState)
+        {
+            uint status = 0;
+
+            // OpenXR hand tracking status flags
+            // Bit 0: Position valid
+            // Bit 1: Position tracked  
+            // Bit 2: Orientation valid
+            // Bit 3: Orientation tracked
+            // Bit 4: Linear velocity valid
+            // Bit 5: Angular velocity valid
+
+            if (trackingState.HasFlag(XRHandJointTrackingState.Pose))
+            {
+                status |= 0x0F; // Position and orientation valid and tracked (bits 0-3)
+            }
+
+            if (trackingState.HasFlag(XRHandJointTrackingState.LinearVelocity))
+            {
+                status |= 0x10; // Linear velocity valid (bit 4)
+            }
+
+            if (trackingState.HasFlag(XRHandJointTrackingState.AngularVelocity))
+            {
+                status |= 0x20; // Angular velocity valid (bit 5)
+            }
+
+            return status;
+        }
+
+        /// <summary>
+        /// Provides default radius values for different joint types based on OpenXR recommendations
+        /// </summary>
+        private float GetDefaultJointRadius(XRHandJointID jointID)
+        {
+            // Default radii based on typical hand joint sizes (in meters)
+            switch (jointID)
+            {
+                case XRHandJointID.Wrist:
+                    return 0.025f;
+                case XRHandJointID.Palm:
+                    return 0.03f;
+
+                // Thumb joints
+                case XRHandJointID.ThumbMetacarpal:
+                case XRHandJointID.ThumbProximal:
+                case XRHandJointID.ThumbDistal:
+                case XRHandJointID.ThumbTip:
+                    return 0.012f;
+
+                // Index finger joints
+                case XRHandJointID.IndexMetacarpal:
+                case XRHandJointID.IndexProximal:
+                case XRHandJointID.IndexIntermediate:
+                case XRHandJointID.IndexDistal:
+                case XRHandJointID.IndexTip:
+                    return 0.008f;
+
+                // Middle finger joints
+                case XRHandJointID.MiddleMetacarpal:
+                case XRHandJointID.MiddleProximal:
+                case XRHandJointID.MiddleIntermediate:
+                case XRHandJointID.MiddleDistal:
+                case XRHandJointID.MiddleTip:
+                    return 0.008f;
+
+                // Ring finger joints
+                case XRHandJointID.RingMetacarpal:
+                case XRHandJointID.RingProximal:
+                case XRHandJointID.RingIntermediate:
+                case XRHandJointID.RingDistal:
+                case XRHandJointID.RingTip:
+                    return 0.007f;
+
+                // Little finger joints
+                case XRHandJointID.LittleMetacarpal:
+                case XRHandJointID.LittleProximal:
+                case XRHandJointID.LittleIntermediate:
+                case XRHandJointID.LittleDistal:
+                case XRHandJointID.LittleTip:
+                    return 0.006f;
+
+                default:
+                    return 0.01f; // Generic default
             }
         }
 
@@ -378,6 +649,163 @@ namespace Robot
             // Keeping enum for compatibility but functionality removed
             Body = 1,
             Motion = 2
+        }
+
+        /// <summary>
+        /// Diagnostic method to help troubleshoot hand tracking issues on Quest 3
+        /// Call this method when hand tracking isn't working to get detailed status information
+        /// </summary>
+        public static void DiagnoseHandTracking()
+        {
+            Debug.Log("=== Hand Tracking Diagnostic for Quest 3 ===");
+
+            try
+            {
+                // Check XR system status
+                if (XRGeneralSettings.Instance == null)
+                {
+                    Debug.LogError("XRGeneralSettings.Instance is null - XR system not initialized");
+                    return;
+                }
+
+                if (XRGeneralSettings.Instance.Manager == null)
+                {
+                    Debug.LogError("XRGeneralSettings Manager is null");
+                    return;
+                }
+
+                var manager = XRGeneralSettings.Instance.Manager;
+                Debug.Log($"XR Manager initialization complete: {manager.isInitializationComplete}");
+
+                if (manager.activeLoader == null)
+                {
+                    Debug.LogError("No active XR loader found");
+                    Debug.Log("Available loaders:");
+                    foreach (var loader in manager.activeLoaders)
+                    {
+                        Debug.Log($"  - {loader.GetType().Name}");
+                    }
+                    return;
+                }
+
+                Debug.Log($"Active XR Loader: {manager.activeLoader.GetType().Name}");
+
+                // Check hand tracking subsystem
+                var handSubsystem = manager.activeLoader.GetLoadedSubsystem<XRHandSubsystem>();
+                if (handSubsystem == null)
+                {
+                    Debug.LogError("Hand tracking subsystem not found");
+                    Debug.Log("This could indicate:");
+                    Debug.Log("  - Hand tracking not enabled in XR settings");
+                    Debug.Log("  - Quest 3 hand tracking not properly configured");
+                    Debug.Log("  - Missing required packages or permissions");
+                    return;
+                }
+
+                Debug.Log($"Hand tracking subsystem found: {handSubsystem.GetType().Name}");
+                Debug.Log($"Hand tracking subsystem running: {handSubsystem.running}");
+                Debug.Log($"Hand tracking subsystem descriptor: {handSubsystem.subsystemDescriptor?.id}");
+
+                if (handSubsystem.running)
+                {
+                    Debug.Log($"Left hand tracked: {handSubsystem.leftHand.isTracked}");
+                    Debug.Log($"Right hand tracked: {handSubsystem.rightHand.isTracked}");
+
+                    if (handSubsystem.leftHand.isTracked)
+                    {
+                        Debug.Log($"Left hand root pose valid: {handSubsystem.leftHand.rootPose}");
+                    }
+                    if (handSubsystem.rightHand.isTracked)
+                    {
+                        Debug.Log($"Right hand root pose valid: {handSubsystem.rightHand.rootPose}");
+                    }
+                }
+
+                // Check input devices
+                var devices = new System.Collections.Generic.List<InputDevice>();
+                InputDevices.GetDevices(devices);
+                Debug.Log($"Total XR input devices: {devices.Count}");
+
+                foreach (var device in devices)
+                {
+                    Debug.Log($"  Device: {device.name}");
+                    Debug.Log($"    Characteristics: {device.characteristics}");
+                    Debug.Log($"    Valid: {device.isValid}");
+                }
+
+                // Check for Quest-specific permissions (this would need platform-specific code)
+                Debug.Log("=== Recommendations for Quest 3 ===");
+                Debug.Log("1. Ensure hand tracking is enabled in Quest settings");
+                Debug.Log("2. Check that hands are visible to the headset cameras");
+                Debug.Log("3. Verify proper lighting conditions");
+                Debug.Log("4. Make sure the app has hand tracking permissions");
+                Debug.Log("5. Try restarting the hand tracking subsystem");
+
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Hand tracking diagnostic failed: {e.Message}\nStack trace: {e.StackTrace}");
+            }
+
+            Debug.Log("=== End Hand Tracking Diagnostic ===");
+        }
+
+        /// <summary>
+        /// Attempts to restart the hand tracking subsystem
+        /// This can help resolve hand tracking issues on Quest 3
+        /// </summary>
+        public static bool RestartHandTracking()
+        {
+            try
+            {
+                Debug.Log("Attempting to restart hand tracking subsystem...");
+
+                if (XRGeneralSettings.Instance?.Manager?.activeLoader == null)
+                {
+                    Debug.LogError("Cannot restart hand tracking - XR system not properly initialized");
+                    return false;
+                }
+
+                var handSubsystem = XRGeneralSettings.Instance.Manager.activeLoader
+                    .GetLoadedSubsystem<XRHandSubsystem>();
+
+                if (handSubsystem == null)
+                {
+                    Debug.LogError("Hand tracking subsystem not found - cannot restart");
+                    return false;
+                }
+
+                // Stop the subsystem if it's running
+                if (handSubsystem.running)
+                {
+                    Debug.Log("Stopping hand tracking subsystem...");
+                    handSubsystem.Stop();
+
+                    // Wait a brief moment
+                    System.Threading.Thread.Sleep(100);
+                }
+
+                // Start the subsystem
+                Debug.Log("Starting hand tracking subsystem...");
+                handSubsystem.Start();
+
+                // Verify it started
+                if (handSubsystem.running)
+                {
+                    Debug.Log("Hand tracking subsystem successfully restarted");
+                    return true;
+                }
+                else
+                {
+                    Debug.LogError("Failed to start hand tracking subsystem");
+                    return false;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to restart hand tracking: {e.Message}");
+                return false;
+            }
         }
     }
 }

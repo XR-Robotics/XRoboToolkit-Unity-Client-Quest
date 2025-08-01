@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using UnityEngine;
 
 namespace Robot
 {
@@ -109,13 +110,15 @@ namespace Robot
             //
             return cameraExtrinsics;
         }
-
-        public static bool IsPico4U()
+        
+        public static void WriteLog(string tag, string msg)
         {
 #if UNITY_EDITOR
-            return true;
+            Debug.Log($"[XRoboToolkit]<color=red>{tag}</color>\t{msg}");
+#else
+            // Output to logcat
+            Debug.Log($"[XRoboToolkit]\t{tag}\t{msg}");
 #endif
-            return false;
         }
     }
 }

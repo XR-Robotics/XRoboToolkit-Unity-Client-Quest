@@ -35,13 +35,14 @@ namespace Robot
             if (enableContinuousTesting && Time.time - lastTestTime > testInterval)
             {
                 TestHandTracking();
+                TestControllerTracking();
                 lastTestTime = Time.time;
             }
         }
 
         void OnGUI()
         {
-            GUILayout.BeginArea(new Rect(10, 10, 300, 200));
+            GUILayout.BeginArea(new Rect(10, 10, 320, 240));
             GUILayout.Label("Hand Tracking Tester", new GUIStyle(GUI.skin.label) { fontSize = 16 });
 
             if (GUILayout.Button("Test Hand Tracking"))
@@ -60,6 +61,12 @@ namespace Robot
                 Debug.Log($"Hand tracking restart {(success ? "successful" : "failed")}");
             }
 
+            if (GUILayout.Button("Force Enable Hand Tracking"))
+            {
+                bool success = TrackingData.ForceEnableHandTracking();
+                Debug.Log($"Force enable hand tracking {(success ? "successful" : "failed")}");
+            }
+
             if (GUILayout.Button("Toggle Hand Tracking"))
             {
                 TrackingData.SetHandTrackingOn(!TrackingData.HandTrackingOn);
@@ -72,6 +79,58 @@ namespace Robot
             GUILayout.Label($"Frame: {frameCount}");
 
             GUILayout.EndArea();
+        }
+        
+        private void TestControllerTracking()
+        {
+            Debug.Log("=== Testing Controller Tracking ===");
+
+            try
+            {
+                // Enable controller tracking for testing
+                TrackingData.SetHandTrackingOn(true);
+
+                // Create test data structure
+                JsonData testData = new JsonData();
+
+                // Get tracking data
+                trackingData.Get(ref testData);
+
+                // Check if controller data was obtained
+                if (testData.ContainsKey("Controller"))
+                {
+                    var controllerData = testData["Controller"];
+
+                    Debug.Log($"Controller tracking SUCCESS - {controllerData}");
+                }
+                else
+                {
+                    Debug.LogWarning("Controller tracking FAILED - No controller data in response");
+
+                    // Log what we did get
+                    Debug.Log($"Available keys in response: {string.Join(", ", GetJsonKeys(testData))}");
+                }
+
+                // Log input device status
+                if (testData.ContainsKey("Input"))
+                {
+                    int inputDevice = (int)testData["Input"];
+                    string deviceType = inputDevice switch
+                    {
+                        0 => "Head Tracking",
+                        1 => "Controller",
+                        2 => "Hand Tracking",
+                        _ => $"Unknown ({inputDevice})"
+                    };
+                    Debug.Log($"Active input device: {deviceType}");
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Controller tracking test failed: {e.Message}");
+            }
+
+            Debug.Log("=== End Controller Tracking Test ===");
         }
 
         private void TestHandTracking()

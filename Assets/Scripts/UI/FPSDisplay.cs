@@ -21,14 +21,31 @@ public class FPSDisplay : MonoBehaviour
         deltaTime += (unDeltaTime - deltaTime) * 0.1f;
         //   Debug.Log("deltaTime:" + deltaTime);
     }
+    
+    public static void Reset()
+    {
+        if (deltaTime > 0)
+        {
+            deltaTime = 0f;   
+        }
+    }
 
     private void Update()
     {
-        if (Time.frameCount % 10 == 0)
+        if (fpsText != null)
         {
-            // Calculate FPS
-            var fps = 1000.0f / deltaTime;
-            if (fpsText != null) fpsText.text = $"FPS: {fps:f1}";
+            if (Time.frameCount % 10 == 0)
+            {
+                var text = $"FPS: N/A";
+                // Calculate FPS
+                if (deltaTime > 0)
+                {
+                    var fps = 1000.0f / deltaTime;
+                    text = $"FPS: {fps:F1}";
+                }
+
+                fpsText.text = text;
+            }
         }
     }
 }

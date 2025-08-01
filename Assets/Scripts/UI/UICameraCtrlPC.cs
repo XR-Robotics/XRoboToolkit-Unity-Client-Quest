@@ -121,12 +121,12 @@ public partial class UICameraCtrl
         else if (functionName == "RequestVRCamera")
         {
             Toast.Show("Receive VR camera Request");
-            //The VR camera image acquisition is only effective on the B-end device of Pico4U.
-            if (!Utils.IsPico4U())
-            {
-                Debug.LogWarning("Please use B-end pico4U devices and apply for camera permissions.");
-                return;
-            }
+            // //The VR camera image acquisition is only effective on the B-end device of Pico4U.
+            // if (!Utils.IsPico4U())
+            // {
+            //     Debug.LogWarning("Please use B-end pico4U devices and apply for camera permissions.");
+            //     return;
+            // }
 
             value = value.Replace("\\", "");
             JsonData json = JsonMapper.ToObject(value);

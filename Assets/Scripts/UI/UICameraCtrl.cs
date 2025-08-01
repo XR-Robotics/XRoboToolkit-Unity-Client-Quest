@@ -103,12 +103,12 @@ public partial class UICameraCtrl : MonoBehaviour
     private void StartRecord(int width, int height, int fps, int bitrate,
         bool onTrackingData)
     {
-        //The VR camera image acquisition is only effective on the B-end device of Pico4U.
-        if (!Utils.IsPico4U())
-        {
-            Toast.Show("Please use B-end pico4U devices and apply for camera permissions.");
-            return;
-        }
+        // //The VR camera image acquisition is only effective on the B-end device of Pico4U.
+        // if (!Utils.IsPico4U())
+        // {
+        //     Toast.Show("Please use B-end pico4U devices and apply for camera permissions.");
+        //     return;
+        // }
 
         Toast.Show("Start Record");
         Debug.Log("StartRecord:" + width + "," + height + "," + fps + "," + bitrate + "," + onTrackingData);

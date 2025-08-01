@@ -1324,7 +1324,15 @@ MonoBehaviour:
   resetHmdPoseOnRelease: 1
   resetHmdPoseByMiddleMouseButton: 1
   activateKeys: 3201000031010000
+  activateKeyBindings:
+  - <Keyboard>/leftCtrl
+  - <Keyboard>/rightCtrl
+  - <Keyboard>/f1
   pitchKeys: 3401000033010000
+  pitchKeyBindings:
+  - <Keyboard>/leftAlt
+  - <Keyboard>/rightAlt
+  - <Keyboard>/f2
 --- !u!114 &456415315
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1647,7 +1655,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &610666672
 Transform:
   m_ObjectHideFlags: 0
@@ -7932,6 +7940,10 @@ PrefabInstance:
       propertyPath: CanvRE
       value: 
       objectReference: {fileID: 1215458335}
+    - target: {fileID: 3273960107523461874, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3273960107523461874, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
       propertyPath: RemoteCameraImage
       value: 

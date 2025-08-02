@@ -35,7 +35,7 @@ public class UIOperate : MonoBehaviour
     public GameObject ExtDevPanel;
     public InputActionProperty SendDataAction;
 
-    [Space(30)] [Header("Refactoring")] public VideoSourceManager videoSource;
+    [Space(30)][Header("Refactoring")] public VideoSourceManager videoSource;
     public VideoSourceConfigManager sourceConfig => videoSource.videoSourceConfigManager;
 
     public Dropdown videoSourceDropdown;
@@ -83,6 +83,17 @@ public class UIOperate : MonoBehaviour
         sourceConfig.OnInitialized += OnSourceConfigOnOnInitialized;
         // Initialize video source configuration
         sourceConfig.Initialize();
+
+        // Enable SendDataAction for Quest controllers
+        if (SendDataAction.action != null)
+        {
+            SendDataAction.action.Enable();
+            Debug.Log("SendDataAction enabled successfully");
+        }
+        else
+        {
+            Debug.LogWarning("SendDataAction.action is null - input action not properly configured");
+        }
     }
 
     private void OnSourceConfigOnOnInitialized()
@@ -153,14 +164,14 @@ public class UIOperate : MonoBehaviour
 
     private void OnNetShareTog(bool ison)
     {
-    //     Debug.Log("OnNetShareTog:" + ison);
-    //     if (ison)
-    //         PXR_Enterprise.SwitchSystemFunction(SystemFunctionSwitchEnum.SFS_USB_TETHERING, SwitchEnum.S_ON);
-    //     else
-    //         PXR_Enterprise.SwitchSystemFunction(SystemFunctionSwitchEnum.SFS_USB_TETHERING, SwitchEnum.S_OFF);
-    //
-    //     PXR_Enterprise.GetSwitchSystemFunctionStatus(SystemFunctionSwitchEnum.SFS_USB_TETHERING,
-    //         (value) => { Debug.Log("SFS_USB_TETHERING:" + value); });
+        //     Debug.Log("OnNetShareTog:" + ison);
+        //     if (ison)
+        //         PXR_Enterprise.SwitchSystemFunction(SystemFunctionSwitchEnum.SFS_USB_TETHERING, SwitchEnum.S_ON);
+        //     else
+        //         PXR_Enterprise.SwitchSystemFunction(SystemFunctionSwitchEnum.SFS_USB_TETHERING, SwitchEnum.S_OFF);
+        //
+        //     PXR_Enterprise.GetSwitchSystemFunctionStatus(SystemFunctionSwitchEnum.SFS_USB_TETHERING,
+        //         (value) => { Debug.Log("SFS_USB_TETHERING:" + value); });
     }
 
     public void OnQuit()
@@ -379,10 +390,12 @@ public class UIOperate : MonoBehaviour
 
         if (AcontrolerTog != null && AcontrolerTog.isOn)
         {
+            // Use Input Actions only
             if (SendDataAction.action != null && SendDataAction.action.WasReleasedThisFrame())
             {
                 SendTog.isOn = !SendTog.isOn;
                 LogWindow.Info("Sending data: " + SendTog.isOn);
+                Debug.Log("SendDataAction triggered - Sending data: " + SendTog.isOn);
             }
         }
     }
@@ -390,5 +403,14 @@ public class UIOperate : MonoBehaviour
     public void OnQuitBtn()
     {
         Application.Quit();
+    }
+
+    private void OnDestroy()
+    {
+        // Disable SendDataAction when object is destroyed
+        if (SendDataAction.action != null)
+        {
+            SendDataAction.action.Disable();
+        }
     }
 }

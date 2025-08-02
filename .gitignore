@@ -101,3 +101,6 @@ InitTestScene*.unity*
 # Samples
 /[Aa]ssets/Samples
 /[Aa]ssets/Samples.meta
+
+# JetBrains Rider
+.idea/

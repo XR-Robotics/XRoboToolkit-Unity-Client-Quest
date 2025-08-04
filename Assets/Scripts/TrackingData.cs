@@ -140,6 +140,11 @@ namespace Robot
                     if (headDevice.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 position) &&
                         headDevice.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion rotation))
                     {
+                        // Adjust to match the PICO coordinate system
+                        position.z *= -1;
+                        rotation.z *= -1;
+                        rotation.w *= -1;
+
                         jsonData["pose"] = GetPoseStr(position, rotation);
                         jsonData["status"] = 3; // Match PICO
                     }
@@ -208,9 +213,11 @@ namespace Robot
                 var rightController = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
 
                 bool leftControllerValid = leftController.isValid &&
-                    leftController.characteristics.HasFlag(InputDeviceCharacteristics.Controller);
+                                           leftController.characteristics.HasFlag(InputDeviceCharacteristics
+                                               .Controller);
                 bool rightControllerValid = rightController.isValid &&
-                    rightController.characteristics.HasFlag(InputDeviceCharacteristics.Controller);
+                                            rightController.characteristics.HasFlag(InputDeviceCharacteristics
+                                                .Controller);
 
                 if (leftControllerValid || rightControllerValid)
                 {
@@ -271,6 +278,11 @@ namespace Robot
 
             controllerDevice.TryGetFeatureValue(CommonUsages.devicePosition, out var position);
             controllerDevice.TryGetFeatureValue(CommonUsages.deviceRotation, out var rotation);
+
+            // Adjust to match the PICO coordinate system
+            position.z *= -1;
+            rotation.z *= -1;
+            rotation.w *= -1;
 
             json["axisX"] = axis2D.x;
             json["axisY"] = axis2D.y;
@@ -335,6 +347,7 @@ namespace Robot
                     {
                         Debug.LogWarning($"Failed to start hand tracking subsystem: {startEx.Message}");
                     }
+
                     return _handData;
                 }
 
@@ -461,7 +474,8 @@ namespace Robot
                 }
 
                 // Log summary
-                Debug.Log($"Hand tracking summary - Left tracked: {leftHandTracked}, Right tracked: {rightHandTracked}, Subsystem running: {handSubsystem.running}");
+                Debug.Log(
+                    $"Hand tracking summary - Left tracked: {leftHandTracked}, Right tracked: {rightHandTracked}, Subsystem running: {handSubsystem.running}");
             }
             catch (System.Exception e)
             {
@@ -513,6 +527,40 @@ namespace Robot
                 int successfulJoints = 0;
                 int totalJoints = (int)XRHandJointID.EndMarker;
 
+                // The XRHandJointID (UnityEngine.XR.Hands)
+                // Invalid = 0
+                // BeginMarker = 1 (also represents Wrist)
+                // Palm = 2
+
+                // OpenXR
+                // Palm = 0
+                // Wrist = 1
+
+                // Add Palm first - 2
+                var palmJointID = XRHandJointID.Palm;
+                var palmJoint = hand.GetJoint(palmJointID);
+
+                if (palmJoint.TryGetPose(out Pose palmPose))
+                {
+                    JsonData jointJson = new JsonData();
+
+                    // Adjust to match the PICO coordinate system
+                    palmPose.position.z *= -1;
+                    palmPose.rotation.z *= -1;
+                    palmPose.rotation.w *= -1;
+
+                    jointJson["p"] = GetPoseStr(palmPose.position, palmPose.rotation);
+
+                    // Enhanced tracking state mapping for Quest 3
+                    uint status = GetOpenXRTrackingStatus(palmJoint.trackingState);
+                    jointJson["s"] = ((ulong)status);
+
+                    jointJson["r"] = 0.0f;
+
+                    jointLocationsJson.Add(jointJson);
+                    successfulJoints++;
+                }
+
                 // Iterate through all hand joints with improved error handling
                 for (int i = 0; i < totalJoints; i++)
                 {
@@ -522,15 +570,20 @@ namespace Robot
                         var joint = hand.GetJoint(jointID);
 
                         // Validate joint before trying to get pose
-                        if (joint.id == XRHandJointID.Invalid)
+                        if (joint.id == XRHandJointID.Invalid || joint.id == XRHandJointID.Palm)
                         {
-                            Debug.LogWarning($"Joint at index {i} is invalid");
                             continue;
                         }
 
                         if (joint.TryGetPose(out Pose pose))
                         {
                             JsonData jointJson = new JsonData();
+
+                            // Adjust to match the PICO coordinate system
+                            pose.position.z *= -1;
+                            pose.rotation.z *= -1;
+                            pose.rotation.w *= -1;
+
                             jointJson["p"] = GetPoseStr(pose.position, pose.rotation);
 
                             // Enhanced tracking state mapping for Quest 3
@@ -621,7 +674,7 @@ namespace Robot
                 status |= 0x04; // Orientation valid
                 status |= 0x08; // Orientation tracked
             }
-            
+
             // This is not support in PICO
 
             // if (trackingState.HasFlag(XRHandJointTrackingState.LinearVelocity))
@@ -754,6 +807,7 @@ namespace Robot
                     {
                         Debug.Log($"  - {loader.GetType().Name}");
                     }
+
                     return;
                 }
 
@@ -787,6 +841,7 @@ namespace Robot
                     {
                         Debug.Log($"Left hand root pose: {handSubsystem.leftHand.rootPose}");
                     }
+
                     if (rightTracked)
                     {
                         Debug.Log($"Right hand root pose: {handSubsystem.rightHand.rootPose}");
@@ -839,13 +894,18 @@ namespace Robot
                 // Check if controllers are interfering
                 var leftController = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
                 var rightController = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-                bool controllersPresent = (leftController.isValid && leftController.characteristics.HasFlag(InputDeviceCharacteristics.Controller)) ||
-                                        (rightController.isValid && rightController.characteristics.HasFlag(InputDeviceCharacteristics.Controller));
+                bool controllersPresent = (leftController.isValid &&
+                                           leftController.characteristics.HasFlag(InputDeviceCharacteristics
+                                               .Controller)) ||
+                                          (rightController.isValid &&
+                                           rightController.characteristics.HasFlag(
+                                               InputDeviceCharacteristics.Controller));
 
                 if (controllersPresent)
                 {
                     Debug.LogWarning("Controllers detected - they may be interfering with hand tracking");
-                    Debug.LogWarning("Try putting controllers down or switching to 'Hands Only' mode in Quest settings");
+                    Debug.LogWarning(
+                        "Try putting controllers down or switching to 'Hands Only' mode in Quest settings");
                 }
 
             }
@@ -978,7 +1038,8 @@ namespace Robot
                     // Log every second to show we're trying
                     if ((int)(Time.unscaledTime - checkStartTime) % 1 == 0)
                     {
-                        Debug.Log($"Waiting for hands to be detected... ({(int)(Time.unscaledTime - checkStartTime)}s)");
+                        Debug.Log(
+                            $"Waiting for hands to be detected... ({(int)(Time.unscaledTime - checkStartTime)}s)");
                     }
 
                     System.Threading.Thread.Sleep(100);

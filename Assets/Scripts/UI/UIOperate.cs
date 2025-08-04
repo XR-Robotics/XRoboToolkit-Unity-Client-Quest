@@ -51,16 +51,16 @@ public class UIOperate : MonoBehaviour
 #endif
         // ReconnectBtn.gameObject.SetActive(false);
 
-        bodyModeDrop.onValueChanged.AddListener(OnBodyModeDrop);
+        // bodyModeDrop.onValueChanged.AddListener(OnBodyModeDrop);
         HeadTog.onValueChanged.AddListener(OnHeadTog);
         ControllerTog.onValueChanged.AddListener(OnControllerTog);
         HandTrackingTog.onValueChanged.AddListener(OnHandTrackingTog);
 
         SendTog.onValueChanged.AddListener(OnSendTog);
         Version.text = "v: " + Application.version;
-        HighAccuracy.gameObject.SetActive(bodyModeDrop.value > 0);
+        // HighAccuracy.gameObject.SetActive(bodyModeDrop.value > 0);
         NetshareTog.onValueChanged.AddListener(OnNetShareTog);
-        HighAccuracy.onValueChanged.AddListener(OnHighAccuracy);
+        // HighAccuracy.onValueChanged.AddListener(OnHighAccuracy);
         ReconnectBtn.onClick.AddListener(OnReconnectBtn);
         //The shared network function is only available on B-end devices.
         NetshareTog.gameObject.SetActive(false);
@@ -191,9 +191,11 @@ public class UIOperate : MonoBehaviour
 
     private void OnBodyModeDrop(int index)
     {
-        TrackingData.TrackingType tType = (TrackingData.TrackingType)bodyModeDrop.value;
-        int res = 0;
-        bool support = false;
+        // TODO
+        
+        // TrackingData.TrackingType tType = (TrackingData.TrackingType)bodyModeDrop.value;
+        // int res = 0;
+        // bool support = false;
 
         // TODO: body tracking in Quest
         // MotionTrackerMode trackingMode = PXR_MotionTracking.GetMotionTrackerMode();
@@ -218,19 +220,19 @@ public class UIOperate : MonoBehaviour
         //     support = true;
         // }
 
-        if (!support || res != 0)
-        {
-            BodyInfo.text = "Tracker exception, please connect to calibrate tracker!";
-            BodyInfo.color = Color.red;
-
-            bodyModeDrop.SetValueWithoutNotify(0);
-            return;
-        }
-
-        BodyInfo.color = Color.white;
-        BodyInfo.text = "Tracker detection is normal!";
-
-        UpdateBodyTracking();
+        // if (!support || res != 0)
+        // {
+        //     BodyInfo.text = "Tracker exception, please connect to calibrate tracker!";
+        //     BodyInfo.color = Color.red;
+        //
+        //     bodyModeDrop.SetValueWithoutNotify(0);
+        //     return;
+        // }
+        //
+        // BodyInfo.color = Color.white;
+        // BodyInfo.text = "Tracker detection is normal!";
+        //
+        // UpdateBodyTracking();
     }
 
 
@@ -309,11 +311,25 @@ public class UIOperate : MonoBehaviour
     private void OnControllerTog(bool on)
     {
         TrackingData.SetControllerOn(on);
+
+        // Ensure mutual exclusivity with HandTrackingTog
+        if (on && HandTrackingTog.isOn)
+        {
+            HandTrackingTog.SetIsOnWithoutNotify(false);
+            TrackingData.SetHandTrackingOn(false);
+        }
     }
 
     private void OnHandTrackingTog(bool on)
     {
         TrackingData.SetHandTrackingOn(on);
+
+        // Ensure mutual exclusivity with ControllerTog
+        if (on && ControllerTog.isOn)
+        {
+            ControllerTog.SetIsOnWithoutNotify(false);
+            TrackingData.SetControllerOn(false);
+        }
     }
 
     private void OnSendTog(bool on)

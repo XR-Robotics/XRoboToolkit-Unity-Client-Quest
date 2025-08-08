@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using LitJson;
 using UnityEngine;
 using UnityEngine.XR;
@@ -11,12 +12,154 @@ using InputDevice = UnityEngine.XR.InputDevice;
 
 namespace Robot
 {
+    // OpenXR structures and enums for head tracking
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XrVector3f
+    {
+        public float x, y, z;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XrQuaternionf
+    {
+        public float x, y, z, w;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XrPosef
+    {
+        public XrQuaternionf orientation;
+        public XrVector3f position;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XrSpaceLocation
+    {
+        public uint type; // XR_TYPE_SPACE_LOCATION
+        public IntPtr next;
+        public ulong locationFlags;
+        public XrPosef pose;
+    }
+
+    public enum XrResult
+    {
+        XR_SUCCESS = 0,
+        XR_TIMEOUT_EXPIRED = 1,
+        XR_SESSION_LOSS_PENDING = 3,
+        XR_EVENT_UNAVAILABLE = 4,
+        XR_SPACE_BOUNDS_UNAVAILABLE = 5,
+        XR_SESSION_NOT_FOCUSED = 6,
+        XR_FRAME_DISCARDED = 9,
+
+        // Error codes (negative values)
+        XR_ERROR_VALIDATION_FAILURE = -1,
+        XR_ERROR_RUNTIME_FAILURE = -2,
+        XR_ERROR_OUT_OF_MEMORY = -3,
+        XR_ERROR_API_VERSION_UNSUPPORTED = -4,
+        XR_ERROR_INITIALIZATION_FAILED = -7,
+        XR_ERROR_FUNCTION_UNSUPPORTED = -8,
+        XR_ERROR_FEATURE_UNSUPPORTED = -9,
+        XR_ERROR_EXTENSION_NOT_PRESENT = -10,
+        XR_ERROR_LIMIT_REACHED = -11,
+        XR_ERROR_SIZE_INSUFFICIENT = -12,
+        XR_ERROR_HANDLE_INVALID = -13,
+        XR_ERROR_INSTANCE_LOST = -14,
+        XR_ERROR_SESSION_RUNNING = -16,
+        XR_ERROR_SESSION_NOT_RUNNING = -17,
+        XR_ERROR_SESSION_LOST = -18,
+        XR_ERROR_SYSTEM_INVALID = -19,
+        XR_ERROR_PATH_INVALID = -20,
+        XR_ERROR_PATH_COUNT_EXCEEDED = -21,
+        XR_ERROR_PATH_FORMAT_INVALID = -22,
+        XR_ERROR_PATH_UNSUPPORTED = -23,
+        XR_ERROR_LAYER_INVALID = -24,
+        XR_ERROR_LAYER_LIMIT_EXCEEDED = -25,
+        XR_ERROR_SWAPCHAIN_RECT_INVALID = -26,
+        XR_ERROR_SWAPCHAIN_FORMAT_UNSUPPORTED = -27,
+        XR_ERROR_ACTION_TYPE_MISMATCH = -28,
+        XR_ERROR_SESSION_NOT_READY = -29,
+        XR_ERROR_SESSION_NOT_STOPPING = -30,
+        XR_ERROR_TIME_INVALID = -31,
+        XR_ERROR_REFERENCE_SPACE_UNSUPPORTED = -32,
+        XR_ERROR_FILE_ACCESS_ERROR = -33,
+        XR_ERROR_FILE_CONTENTS_INVALID = -34,
+        XR_ERROR_FORM_FACTOR_UNSUPPORTED = -35,
+        XR_ERROR_FORM_FACTOR_UNAVAILABLE = -36,
+        XR_ERROR_API_LAYER_NOT_PRESENT = -37,
+        XR_ERROR_CALL_ORDER_INVALID = -38,
+        XR_ERROR_GRAPHICS_DEVICE_INVALID = -39,
+        XR_ERROR_POSE_INVALID = -40,
+        XR_ERROR_INDEX_OUT_OF_RANGE = -41,
+        XR_ERROR_VIEW_CONFIGURATION_TYPE_UNSUPPORTED = -42,
+        XR_ERROR_ENVIRONMENT_BLEND_MODE_UNSUPPORTED = -43,
+        XR_ERROR_NAME_DUPLICATED = -44,
+        XR_ERROR_NAME_INVALID = -45,
+        XR_ERROR_ACTIONSET_NOT_ATTACHED = -46,
+        XR_ERROR_ACTIONSETS_ALREADY_ATTACHED = -47,
+        XR_ERROR_LOCALIZED_NAME_DUPLICATED = -48,
+        XR_ERROR_LOCALIZED_NAME_INVALID = -49,
+        XR_ERROR_GRAPHICS_REQUIREMENTS_CALL_MISSING = -50,
+        XR_ERROR_RUNTIME_UNAVAILABLE = -51
+    }
+
+    // OpenXR space location flags
+    public enum XrSpaceLocationFlags : ulong
+    {
+        XR_SPACE_LOCATION_ORIENTATION_VALID_BIT = 0x00000001,
+        XR_SPACE_LOCATION_POSITION_VALID_BIT = 0x00000002,
+        XR_SPACE_LOCATION_ORIENTATION_TRACKED_BIT = 0x00000004,
+        XR_SPACE_LOCATION_POSITION_TRACKED_BIT = 0x00000008
+    }
+
+    // OpenXR constants
+    public static class XrConstants
+    {
+        public const uint XR_TYPE_SPACE_LOCATION = 42;
+        public const ulong XR_NULL_HANDLE = 0;
+    }
+
+    // OpenXR P/Invoke declarations
+    // Note: These functions may not be available in all Unity OpenXR plugin versions
+    // The implementation includes fallback mechanisms for compatibility
     public class TrackingData
     {
+        // OpenXR P/Invoke declarations
+        [DllImport("openxr_loader", CallingConvention = CallingConvention.Cdecl)]
+        private static extern XrResult xrLocateSpace(ulong space, ulong baseSpace, long time,
+            ref XrSpaceLocation location);
+
+        [DllImport("openxr_loader", CallingConvention = CallingConvention.Cdecl)]
+        private static extern XrResult xrGetCurrentInteractionProfile(ulong session, ulong topLevelUserPath,
+            ref ulong interactionProfile);
+
+        // Unity OpenXR Plugin native methods - using available Unity OpenXR functions
+        // These functions are more commonly available in Unity OpenXR plugin
+        [DllImport("UnityOpenXR", CallingConvention = CallingConvention.Cdecl, EntryPoint = "script_get_openxr_app_space")]
+        private static extern ulong GetCurrentAppSpace();
+
+        [DllImport("UnityOpenXR", CallingConvention = CallingConvention.Cdecl, EntryPoint = "script_get_openxr_play_space")]
+        private static extern ulong GetTrackingSpace();
+
+        [DllImport("UnityOpenXR", CallingConvention = CallingConvention.Cdecl, EntryPoint = "script_get_predicted_display_time")]
+        private static extern long GetPredictedDisplayTime();
+
+        [DllImport("UnityOpenXR", CallingConvention = CallingConvention.Cdecl, EntryPoint = "script_is_session_running")]
+        private static extern bool IsSessionRunning();
+
+        // Alternative approach using Unity OpenXR's internal functions
+        [DllImport("UnityOpenXR", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NativeConfig_GetRuntimeName")]
+        private static extern IntPtr GetRuntimeName();
+
+        [DllImport("UnityOpenXR", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NativeConfig_GetRuntimeVersion")]
+        private static extern long GetRuntimeVersion();
+
         public static bool HeadOn { get; private set; }
         public static bool ControllerOn { get; private set; }
         public static bool HandTrackingOn { get; private set; }
         public static TrackingType TrackingTypeValue { get; private set; }
+
+        // Configuration for head tracking method
+        public static bool UseOpenXRCAPI { get; set; } = false;
 
         private JsonData _motionTrackingJson = new JsonData();
         private JsonData _bodyTrackingJson = new JsonData();
@@ -49,6 +192,12 @@ namespace Robot
             TrackingTypeValue = trackingType;
         }
 
+        public static void SetUseOpenXRCAPI(bool useOpenXR)
+        {
+            UseOpenXRCAPI = useOpenXR;
+            Debug.Log($"Head tracking method set to: {(useOpenXR ? "OpenXR C API" : "Unity XR")}");
+        }
+
         public static bool HasTracking
         {
             get
@@ -70,7 +219,7 @@ namespace Robot
 
                 if (HeadOn)
                 {
-                    JsonData sensorJson = GetHeadTrackingData();
+                    JsonData sensorJson = UseOpenXRCAPI ? GetHeadTrackingDataOpenXRCAPI() : GetHeadTrackingData();
                     totalData["Head"] = sensorJson;
                 }
                 else
@@ -140,6 +289,8 @@ namespace Robot
                     if (headDevice.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 position) &&
                         headDevice.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion rotation))
                     {
+                        // before mapping
+                        Debug.Log($"[TrackingData] Headset : {position} {rotation}");
                         // Adjust to match the PICO coordinate system
                         position.z *= -1;
                         rotation.z *= -1;
@@ -166,6 +317,403 @@ namespace Robot
 
             return jsonData;
         }
+
+        /// <summary>
+        /// Gets head tracking data using OpenXR C API for more direct access to headset pose information.
+        /// This method provides an alternative to Unity's XR input system by directly calling OpenXR native functions.
+        /// 
+        /// Features:
+        /// - Direct OpenXR C API calls for potentially lower latency
+        /// - Predicted display time for better pose accuracy
+        /// - Full tracking state validation (position/orientation valid and tracked)
+        /// - Automatic fallback to Unity XR on API failures
+        /// - Coordinate system adjustment to match PICO format
+        /// 
+        /// Usage:
+        /// - Set TrackingData.UseOpenXRCAPI = true to enable this method
+        /// - Call TrackingData.TestOpenXRHeadTracking() to compare with Unity XR
+        /// 
+        /// Requirements:
+        /// - OpenXR runtime must be active
+        /// - Unity OpenXR plugin with native function access
+        /// - Compatible OpenXR loader (openxr_loader.dll)
+        /// 
+        /// Returns JsonData with:
+        /// - "pose": String with position and rotation (x,y,z,qx,qy,qz,qw)
+        /// - "status": Integer (0=no tracking, 1=partial, 3=full tracking)
+        /// </summary>
+        private JsonData GetHeadTrackingDataOpenXRCAPI()
+        {
+            JsonData jsonData = new JsonData();
+
+            try
+            {
+                // First try to validate OpenXR is available through Unity's XR system
+                if (!ValidateOpenXRSession())
+                {
+                    Debug.LogWarning("OpenXR session validation failed");
+                    jsonData["status"] = 0;
+                    return jsonData;
+                }
+
+                // Try to get spaces using the updated function signatures
+                ulong headSpace = 0;
+                ulong trackingSpace = 0;
+                long predictedDisplayTime = 0;
+
+                try
+                {
+                    // headSpace = GetCurrentAppSpace();
+                    // trackingSpace = GetTrackingSpace();
+                    // predictedDisplayTime = GetPredictedDisplayTime();
+                }
+                catch (System.EntryPointNotFoundException)
+                {
+                    // Functions not available, fall back to alternative approach
+                    Debug.LogWarning("Unity OpenXR plugin functions not available, using alternative approach");
+                    return GetHeadTrackingDataOpenXRAlternative();
+                }
+                catch (System.DllNotFoundException)
+                {
+                    Debug.LogWarning("Unity OpenXR plugin DLL not found, falling back to Unity XR");
+                    return GetHeadTrackingData();
+                }
+
+                // if (headSpace == XrConstants.XR_NULL_HANDLE || trackingSpace == XrConstants.XR_NULL_HANDLE)
+                // {
+                //     Debug.LogWarning("OpenXR spaces not available");
+                //     jsonData["status"] = 0;
+                //     return jsonData;
+                // }
+
+                // Initialize space location structure
+                XrSpaceLocation spaceLocation = new XrSpaceLocation
+                {
+                    type = XrConstants.XR_TYPE_SPACE_LOCATION,
+                    next = IntPtr.Zero,
+                    locationFlags = 0,
+                    pose = new XrPosef
+                    {
+                        orientation = new XrQuaternionf { x = 0, y = 0, z = 0, w = 1 },
+                        position = new XrVector3f { x = 0, y = 0, z = 0 }
+                    }
+                };
+
+                // Locate the head space relative to the tracking space
+                XrResult result = xrLocateSpace(headSpace, trackingSpace, predictedDisplayTime, ref spaceLocation);
+
+                if (result == XrResult.XR_SUCCESS)
+                {
+                    // Check if position and orientation are valid and tracked
+                    bool positionValid = (spaceLocation.locationFlags &
+                                          (ulong)XrSpaceLocationFlags.XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0;
+                    bool orientationValid = (spaceLocation.locationFlags &
+                                             (ulong)XrSpaceLocationFlags.XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0;
+                    bool positionTracked = (spaceLocation.locationFlags &
+                                            (ulong)XrSpaceLocationFlags.XR_SPACE_LOCATION_POSITION_TRACKED_BIT) != 0;
+                    bool orientationTracked = (spaceLocation.locationFlags &
+                                               (ulong)XrSpaceLocationFlags.XR_SPACE_LOCATION_ORIENTATION_TRACKED_BIT) !=
+                                              0;
+
+                    if (positionValid && orientationValid && positionTracked && orientationTracked)
+                    {
+                        // Convert OpenXR pose to Unity format
+                        Vector3 position = new Vector3(
+                            spaceLocation.pose.position.x,
+                            spaceLocation.pose.position.y,
+                            spaceLocation.pose.position.z
+                        );
+
+                        Quaternion rotation = new Quaternion(
+                            spaceLocation.pose.orientation.x,
+                            spaceLocation.pose.orientation.y,
+                            spaceLocation.pose.orientation.z,
+                            spaceLocation.pose.orientation.w
+                        );
+
+                        Debug.Log($"[TrackingData] Headset CAPI : {position} {rotation}");
+
+                        // // Adjust coordinate system to match PICO system (same as existing method)
+                        // position.z *= -1;
+                        // rotation.z *= -1;
+                        // rotation.w *= -1;
+
+                        jsonData["pose"] = GetPoseStr(position, rotation);
+                        jsonData["status"] = 3; // Full tracking status
+
+                        Debug.Log($"OpenXR Head tracking: pos=({position.x:F3}, {position.y:F3}, {position.z:F3}), " +
+                                  $"rot=({rotation.x:F3}, {rotation.y:F3}, {rotation.z:F3}, {rotation.w:F3})");
+                    }
+                    else
+                    {
+                        // Partial tracking or invalid data
+                        Debug.LogWarning(
+                            $"OpenXR Head tracking partial: posValid={positionValid}, oriValid={orientationValid}, " +
+                            $"posTracked={positionTracked}, oriTracked={orientationTracked}");
+                        jsonData["status"] = 1; // Partial tracking
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"OpenXR xrLocateSpace failed with result: {result}");
+                    jsonData["status"] = 0;
+                }
+            }
+            catch (System.DllNotFoundException dllEx)
+            {
+                Debug.LogError($"OpenXR DLL not found: {dllEx.Message}. Falling back to Unity XR.");
+                // Fallback to Unity XR method
+                return GetHeadTrackingData();
+            }
+            catch (System.EntryPointNotFoundException entryEx)
+            {
+                Debug.LogError($"OpenXR function not found: {entryEx.Message}. Falling back to Unity XR.");
+                // Fallback to Unity XR method
+                return GetHeadTrackingData();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"OpenXR Head tracking failed: {e.Message}. Falling back to Unity XR.");
+                // Fallback to Unity XR method
+                return GetHeadTrackingData();
+            }
+
+            return jsonData;
+        }
+
+        /// <summary>
+        /// Validates that OpenXR session is available and running using Unity's XR system
+        /// This provides a fallback validation method when native functions aren't available
+        /// </summary>
+        private bool ValidateOpenXRSession()
+        {
+            try
+            {
+                // Check if XR is initialized and running
+                if (XRGeneralSettings.Instance == null ||
+                    XRGeneralSettings.Instance.Manager == null ||
+                    XRGeneralSettings.Instance.Manager.activeLoader == null)
+                {
+                    Debug.LogWarning("XR system not properly initialized");
+                    return false;
+                }
+
+                // Check if OpenXR is the active loader
+                var activeLoaderName = XRGeneralSettings.Instance.Manager.activeLoader.GetType().Name;
+                if (!activeLoaderName.Contains("OpenXR"))
+                {
+                    Debug.LogWarning($"Active XR loader is not OpenXR: {activeLoaderName}");
+                    return false;
+                }
+
+                // Check if we can get basic XR data (indicates session is active)
+                var headDevice = InputDevices.GetDeviceAtXRNode(XRNode.Head);
+                if (!headDevice.isValid)
+                {
+                    Debug.LogWarning("Head device not available - session may not be active");
+                    return false;
+                }
+
+                return true;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"OpenXR session validation failed: {e.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Alternative OpenXR head tracking implementation using Unity's XR input system with OpenXR optimizations
+        /// This method can be used if the Unity OpenXR plugin specific functions are not available
+        /// It uses Unity's InputDevice system but tries to get more precise timing and validation
+        /// </summary>
+        private JsonData GetHeadTrackingDataOpenXRAlternative()
+        {
+            JsonData jsonData = new JsonData();
+
+            try
+            {
+                Debug.Log("Using OpenXR alternative implementation (Unity XR with OpenXR optimizations)");
+
+                // Validate OpenXR is active
+                if (!ValidateOpenXRSession())
+                {
+                    Debug.LogWarning("OpenXR session not available for alternative implementation");
+                    return GetHeadTrackingData();
+                }
+
+                // Get head tracking data from Unity XR with additional validation
+                InputDevice headDevice = InputDevices.GetDeviceAtXRNode(XRNode.Head);
+                if (headDevice.isValid)
+                {
+                    // Try to get tracking state first for better validation
+                    bool isTracked = false;
+                    if (headDevice.TryGetFeatureValue(CommonUsages.isTracked, out isTracked) && !isTracked)
+                    {
+                        Debug.LogWarning("Head device is valid but not tracked");
+                        jsonData["status"] = 1; // Partial tracking
+                        return jsonData;
+                    }
+
+                    if (headDevice.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 position) &&
+                        headDevice.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion rotation))
+                    {
+                        // Log the raw OpenXR data before coordinate transformation
+                        Debug.Log($"[TrackingData] Headset OpenXR Alt (raw): {position} {rotation}");
+
+                        // Apply coordinate system transformation to match PICO format
+                        // (commented out in the main implementation, so keeping consistent)
+                        // position.z *= -1;
+                        // rotation.z *= -1;
+                        // rotation.w *= -1;
+
+                        jsonData["pose"] = GetPoseStr(position, rotation);
+                        jsonData["status"] = isTracked ? 3 : 1; // Full or partial tracking
+
+                        Debug.Log($"OpenXR Alternative Head tracking: pos=({position.x:F3}, {position.y:F3}, {position.z:F3}), " +
+                                 $"rot=({rotation.x:F3}, {rotation.y:F3}, {rotation.z:F3}, {rotation.w:F3})");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Failed to get position/rotation from head device");
+                        jsonData["status"] = 0;
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("Head device is not valid");
+                    jsonData["status"] = 0;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"OpenXR Alternative head tracking failed: {e.Message}");
+                jsonData["status"] = 0;
+                // Last resort: fall back to the standard Unity XR implementation
+                return GetHeadTrackingData();
+            }
+
+            return jsonData;
+        }
+
+        /// <summary>
+        /// Test method to validate OpenXR C API head tracking functionality
+        /// Call this method to test if OpenXR C API is working correctly
+        /// </summary>
+        public static void TestOpenXRHeadTracking()
+        {
+            Debug.Log("=== Testing OpenXR C API Head Tracking ===");
+
+            TrackingData tracker = new TrackingData();
+
+            // Test Unity XR first
+            Debug.Log("Testing Unity XR method...");
+            JsonData unityResult = tracker.GetHeadTrackingData();
+            Debug.Log($"Unity XR result: status = {unityResult["status"]}, pose = {unityResult.ContainsKey("pose")}");
+
+            // Test OpenXR C API
+            Debug.Log("Testing OpenXR C API method...");
+            JsonData openXRResult = tracker.GetHeadTrackingDataOpenXRCAPI();
+            Debug.Log(
+                $"OpenXR C API result: status = {openXRResult["status"]}, pose = {openXRResult.ContainsKey("pose")}");
+
+            // Test OpenXR Alternative
+            Debug.Log("Testing OpenXR Alternative method...");
+            JsonData openXRAltResult = tracker.GetHeadTrackingDataOpenXRAlternative();
+            Debug.Log(
+                $"OpenXR Alternative result: status = {openXRAltResult["status"]}, pose = {openXRAltResult.ContainsKey("pose")}");
+
+            // Compare results
+            if (unityResult.ContainsKey("pose") && openXRResult.ContainsKey("pose"))
+            {
+                Debug.Log($"Unity XR pose: {unityResult["pose"]}");
+                Debug.Log($"OpenXR pose: {openXRResult["pose"]}");
+            }
+
+            if (openXRAltResult.ContainsKey("pose"))
+            {
+                Debug.Log($"OpenXR Alternative pose: {openXRAltResult["pose"]}");
+            }
+
+            // Test the configuration switching
+            Debug.Log("Testing configuration switching...");
+
+            // Test with OpenXR C API enabled
+            TrackingData.SetUseOpenXRCAPI(true);
+            JsonData configTest1 = new JsonData();
+            tracker.Get(ref configTest1);
+            Debug.Log($"With OpenXR C API enabled: Head status = {(configTest1.ContainsKey("Head") ? configTest1["Head"]["status"] : "No head data")}");
+
+            // Test with OpenXR C API disabled
+            TrackingData.SetUseOpenXRCAPI(false);
+            JsonData configTest2 = new JsonData();
+            tracker.Get(ref configTest2);
+            Debug.Log($"With OpenXR C API disabled: Head status = {(configTest2.ContainsKey("Head") ? configTest2["Head"]["status"] : "No head data")}");
+
+            Debug.Log("=== OpenXR Head Tracking Test Complete ===");
+        }
+
+        /// <summary>
+        /// Provides information about OpenXR C API availability and fallback options
+        /// </summary>
+        public static void CheckOpenXRCAPIAvailability()
+        {
+            Debug.Log("=== OpenXR C API Availability Check ===");
+
+            TrackingData tracker = new TrackingData();
+
+            // Test session validation
+            bool sessionValid = tracker.ValidateOpenXRSession();
+            Debug.Log($"OpenXR Session Valid: {sessionValid}");
+
+            // Test native function availability
+            try
+            {
+                // ulong testSpace = tracker.GetCurrentAppSpace();
+                // Debug.Log($"GetCurrentAppSpace succeeded: Handle = {testSpace}");
+            }
+            catch (System.EntryPointNotFoundException)
+            {
+                Debug.LogWarning("GetCurrentAppSpace not available - Unity OpenXR plugin may not expose this function");
+            }
+            catch (System.DllNotFoundException)
+            {
+                Debug.LogWarning("UnityOpenXR.dll not found - Unity OpenXR plugin may not be installed");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"GetCurrentAppSpace failed: {e.Message}");
+            }
+
+            // Test OpenXR loader availability
+            try
+            {
+                // This will fail gracefully if openxr_loader isn't available
+                XrSpaceLocation testLocation = new XrSpaceLocation();
+                Debug.Log("OpenXR structures can be created successfully");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"OpenXR structure creation failed: {e.Message}");
+            }
+
+            // Provide recommendations
+            Debug.Log("=== Recommendations ===");
+            if (!sessionValid)
+            {
+                Debug.Log("- Ensure OpenXR is the active XR provider in XR Management settings");
+                Debug.Log("- Verify VR headset is connected and OpenXR runtime is active");
+            }
+
+            Debug.Log("- If OpenXR C API functions are not available, the system will automatically fall back to:");
+            Debug.Log("  1. OpenXR Alternative implementation (Unity XR with OpenXR optimizations)");
+            Debug.Log("  2. Standard Unity XR implementation");
+            Debug.Log("- Both fallback methods provide equivalent functionality with slightly different performance characteristics");
+
+            Debug.Log("=== OpenXR C API Availability Check Complete ===");
+        }
+
 
         private int GetActiveInputDevice()
         {

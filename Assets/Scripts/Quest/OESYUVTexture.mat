@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: OESYUVTexture
-  m_Shader: {fileID: 4800000, guid: c66614677f8c8d34fb231e57a1719e0b, type: 3}
+  m_Shader: {fileID: 4800000, guid: b9cf524650288884f8271762484b9c15, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []

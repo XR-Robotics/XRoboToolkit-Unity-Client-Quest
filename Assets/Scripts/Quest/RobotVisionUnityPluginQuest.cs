@@ -49,6 +49,15 @@ public class RobotVisionUnityPluginQuest : MonoBehaviour
 
     void Start()
     {
+        // InitializePlugin();
+    }
+
+    public void InitializeQuestPlugin(int width, int height, int port)
+    {
+        this.width = width;
+        this.height = height;
+        this.port = port;
+        recordVideo = false;
         InitializePlugin();
     }
 

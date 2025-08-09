@@ -32,6 +32,8 @@ public class RemoteCameraWindow : MonoBehaviour
 
     public CustomButton listenBtn;
 
+    public RobotVisionUnityPluginQuest questPlugin;
+
     private void Awake()
     {
         transform.position = Camera.main.transform.position;
@@ -45,7 +47,13 @@ public class RemoteCameraWindow : MonoBehaviour
         _videoFps = fps;
         _bitrate = bitrate;
 
-        StartCoroutine(OnStartListen(port));
+        // Update for meta quest
+        if (questPlugin != null)
+        {
+            questPlugin.InitializeQuestPlugin(width, height, port);
+        }
+        // PICO VR Quest
+        // StartCoroutine(OnStartListen(port));
     }
 
     private void OnDisable()
@@ -98,16 +106,17 @@ public class RemoteCameraWindow : MonoBehaviour
 
     private void Update()
     {
-        if (_texture != null)
-        {
-            if (Application.platform == RuntimePlatform.Android)
-            {
-                if (MediaDecoder.isUpdateFrame())
-                {
-                    MediaDecoder.updateTexture();
-                    GL.InvalidateState();
-                }
-            }
-        }
+        // No need for quest
+        // if (_texture != null)
+        // {
+        //     if (Application.platform == RuntimePlatform.Android)
+        //     {
+        //         if (MediaDecoder.isUpdateFrame())
+        //         {
+        //             MediaDecoder.updateTexture();
+        //             GL.InvalidateState();
+        //         }
+        //     }
+        // }
     }
 }

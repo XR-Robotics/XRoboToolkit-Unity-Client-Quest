@@ -42,12 +42,11 @@ public class SetLERE : MonoBehaviour
     {
         if ((!CanvLE.activeSelf) || (!CanvRE.activeSelf))
         {
+            CanvLE.SetActive(true);
+            CanvRE.SetActive(true);
             var texture = remoteCameraWindow.Texture;
             if (texture != null)
             {
-                CanvLE.SetActive(true);
-                CanvRE.SetActive(true);
-
                 matLE.SetTexture("_mainRT", texture);
                 matRE.SetTexture("_mainRT", texture);
 

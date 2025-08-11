@@ -1,18 +1,21 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.XR;
 
 public class ToggleCameraClippingPlane : MonoBehaviour
 {
-    [Header("Cameras to Adjust")]
-    [SerializeField] private Camera firstCamera;
+    [Header("Cameras to Adjust")] [SerializeField]
+    private Camera firstCamera;
+
     [SerializeField] private Camera secondCamera;
-    
-    [Header("Clipping Plane Values")]
-    [SerializeField] private float nearClipValueA = 0.1f;
+
+    [Header("Clipping Plane Values")] [SerializeField]
+    private float nearClipValueA = 0.1f;
+
     [SerializeField] private float nearClipValueB = 0.35f;
 
     [Header("RemoteCameraWindow")] public GameObject remoteCameraWindow;
-    
+
     private bool wasButtonPressed = false;
     private bool useValueA = true; // Start with the first value
     
@@ -20,10 +23,10 @@ public class ToggleCameraClippingPlane : MonoBehaviour
     {
         // Return if the remote camera window is not active
         if (!remoteCameraWindow.activeSelf) return;
-        
+
         // Get the right controller directly using XRNode
         var rightControllerDevice = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-        
+
         // Check if B button (secondaryButton) is pressed
         bool buttonValue = false;
         if (rightControllerDevice.TryGetFeatureValue(CommonUsages.secondaryButton, out buttonValue) && buttonValue)

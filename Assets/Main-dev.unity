@@ -4215,7 +4215,7 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 134583144}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 2
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
@@ -16704,7 +16704,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df9f338034892c44ebb62d97894772f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  usePerEyeCameras: 0
+  usePerEyeCameras: 1
   useFixedUpdateForTracking: 0
   disableEyeAnchorCameras: 0
 --- !u!4 &533776540
@@ -19130,10 +19130,10 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 615974109}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -19154,7 +19154,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.1
   far clip plane: 1000
   field of view: 60
   orthographic: 0
@@ -24932,10 +24932,10 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 816368686}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -24956,7 +24956,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.1
   far clip plane: 1000
   field of view: 60
   orthographic: 0
@@ -36811,7 +36811,7 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 1
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 816368688}
   m_PlaneDistance: 0.31
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -42862,7 +42862,7 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 1
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 615974111}
   m_PlaneDistance: 0.31
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -61236,8 +61236,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5402a4251adb43046bc25a68937ebbc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstCamera: {fileID: 0}
-  secondCamera: {fileID: 0}
+  firstCamera: {fileID: 615974111}
+  secondCamera: {fileID: 134583146}
   nearClipValueA: 0.1
   nearClipValueB: 0.35
   remoteCameraWindow: {fileID: 6009550096432242019}
@@ -64746,6 +64746,10 @@ PrefabInstance:
     - target: {fileID: 6794232223561290220, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
       propertyPath: m_Camera
       value: 
+      objectReference: {fileID: 134583146}
+    - target: {fileID: 6794232223561290220, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6794232223561290218, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}

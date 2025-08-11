@@ -99,16 +99,19 @@ Shader "Custom/SampleRT"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile _ UNITY_SINGLE_PASS_STEREO
             #include "UnityCG.cginc"
             struct appdata
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             struct v2f
             {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
+                UNITY_VERTEX_OUTPUT_STEREO
             };
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -121,6 +124,8 @@ Shader "Custom/SampleRT"
             v2f vert (appdata v)
             {
                 v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;
@@ -128,13 +133,18 @@ Shader "Custom/SampleRT"
             
             fixed4 frag (v2f i) : SV_Target
             {   
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
+                
                 fixed4 col = fixed4(0.0, 0.0, 0.0, 0.0);
+                
+                // Automatically detect which eye we're rendering for
+                bool isLeftEye = (unity_StereoEyeIndex == 0);
                 
                 // Adjust UV coordinates based on eye
                 float2 adjusted_uv = i.uv;
                 
                 // Apply the x shift to the clipping center
-                if(_isLE == 1) // Left eye
+                if(isLeftEye) // Left eye
                 {
                     adjusted_uv.x = i.uv.x + 0.08/2; // Shift left for left eye
                 }
@@ -165,7 +175,7 @@ Shader "Custom/SampleRT"
                 // Apply height compression
                 new_uv.y = (new_uv.y - 0.5) * _heightCompressionFactor + 0.5;
                 
-                if(_isLE == 1) // Left eye
+                if(isLeftEye) // Left eye
                 {
                     // Apply content ratio with consistent centering
                     float scaled_x = new_uv.x * _contentRatio + (1.0 - _contentRatio) * 0.5 + 0.08;

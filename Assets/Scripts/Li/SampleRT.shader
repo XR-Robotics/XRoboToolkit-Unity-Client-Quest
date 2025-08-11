@@ -137,14 +137,14 @@ Shader "Custom/SampleRT"
                 
                 fixed4 col = fixed4(0.0, 0.0, 0.0, 0.0);
                 
-                // Automatically detect which eye we're rendering for
-                bool isLeftEye = (unity_StereoEyeIndex == 0);
+                // // Automatically detect which eye we're rendering for
+                // bool isLeftEye = (unity_StereoEyeIndex == 0);
                 
                 // Adjust UV coordinates based on eye
                 float2 adjusted_uv = i.uv;
                 
                 // Apply the x shift to the clipping center
-                if(isLeftEye) // Left eye
+                if(_isLE) // Left eye
                 {
                     adjusted_uv.x = i.uv.x + 0.08/2; // Shift left for left eye
                 }
@@ -175,7 +175,7 @@ Shader "Custom/SampleRT"
                 // Apply height compression
                 new_uv.y = (new_uv.y - 0.5) * _heightCompressionFactor + 0.5;
                 
-                if(isLeftEye) // Left eye
+                if(_isLE) // Left eye
                 {
                     // Apply content ratio with consistent centering
                     float scaled_x = new_uv.x * _contentRatio + (1.0 - _contentRatio) * 0.5 + 0.08;
@@ -196,6 +196,23 @@ Shader "Custom/SampleRT"
                     float final_y = new_uv.y * _contentRatio + (1.0 - _contentRatio) * 0.5;
                     
                     col = tex2D(_mainRT, float2(final_x, final_y));
+                }
+                
+                // Apply YUV to RGB conversion for MediaDecoder output
+                // MediaDecoder typically outputs in YUV420 format
+                if (col.a > 0.0) // Only convert if we have valid pixel data
+                {
+                    float y = col.r;
+                    float u = col.g - 0.5;
+                    float v = col.b - 0.5;
+                    
+                    // ITU-R BT.601 conversion matrix
+                    fixed3 rgb;
+                    rgb.r = saturate(y + 1.402 * v);
+                    rgb.g = saturate(y - 0.344 * u - 0.714 * v);
+                    rgb.b = saturate(y + 1.772 * u);
+                    
+                    col.rgb = rgb;
                 }
                 
                 return col;

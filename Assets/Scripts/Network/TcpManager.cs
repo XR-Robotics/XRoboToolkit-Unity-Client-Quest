@@ -55,7 +55,8 @@ namespace Robot.V2.Network
 
 #if !UNITY_EDITOR
             // Start server by default
-            StartServer();
+            // TODO: disable for Meta Quest
+            // StartServer(); 
 #endif
         }
 

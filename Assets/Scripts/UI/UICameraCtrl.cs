@@ -29,7 +29,7 @@ public partial class UICameraCtrl : MonoBehaviour
     private JsonData _recordJson;
     public Text CameraStatusText;
 
-    public CustomButton listenBtn;
+    public Button listenBtn;
     public VideoSourceManager videoSourceManager;
 
     public TcpManager tcpManager;
@@ -47,10 +47,6 @@ public partial class UICameraCtrl : MonoBehaviour
     {
         RecordBtn.OnChange += OnRecordBtn;
         TcpHandler.ReceiveFunctionEvent += OnNetReceive;
-        CameraHandle.AddStateListener(OnCameraStateChanged);
-
-        // Refactoring
-        listenBtn.OnChange += OnListenCameraBtn;
 
         // Bind event
         tcpManager.OnServerReceived += OnServerReceived;
@@ -119,9 +115,10 @@ public partial class UICameraCtrl : MonoBehaviour
         Utils.WriteLog(logTag, $"OnClientReceived: {msg}");
     }
 
-    public void OnListenCameraBtn(bool on)
+    public void OnListenCameraBtn()
     {
-        if (on)
+        var on = RemoteCameraWindowObj.activeSelf;
+        if (!on)
         {
             // check if the dropdown is updated
             if (cameraDropdown.options == null || cameraDropdown.options.Count == 0) return;
@@ -139,9 +136,6 @@ public partial class UICameraCtrl : MonoBehaviour
         {
             RemoteCameraWindowObj.SetActive(false);
         }
-
-        // Update button
-        listenBtn.SetOn(on);
     }
 
     public void RequestCameraStream(string ip)
@@ -211,7 +205,6 @@ public partial class UICameraCtrl : MonoBehaviour
     private void OnDestroy()
     {
         TcpHandler.ReceiveFunctionEvent -= OnNetReceive;
-        CameraHandle.RemoveStateListener(OnCameraStateChanged);
     }
 
     private void OnRecordBtn(bool on)
@@ -301,12 +294,6 @@ public partial class UICameraCtrl : MonoBehaviour
     {
         ResolutionDialog.Show("Setting the resolution", (width, height) =>
         {
-            string cameraIntrinsics = CameraHandle.GetCameraIntrinsics(width, height);
-            string cameraExtrinsics = CameraHandle.GetCameraExtrinsics();
-
-            string saveStr = "CameraExtrinsics:" + cameraExtrinsics + "\n";
-            saveStr += "cameraIntrinsics:" + cameraIntrinsics;
-            WriteLocalText(string.Format("cameraParams_{0}x{1}", width, height), saveStr);
             Toast.Show("Parameter saved successfully!");
         }, null);
     }
@@ -333,15 +320,11 @@ public partial class UICameraCtrl : MonoBehaviour
             _writer = null;
         }
 
-        CameraHandle.StopPreview();
-        CameraHandle.CloseCamera();
         RecordBtn.SetOn(false);
     }
 
     private void StopSendImage()
     {
-        CameraHandle.StopPreview();
-        CameraHandle.CloseCamera();
         CameraSendToBtn.SetOn(false);
     }
 
@@ -376,10 +359,6 @@ public partial class UICameraCtrl : MonoBehaviour
         cameraParam["timeStampNs"] = nsTime;
         //Convert coordinate system to right-handed system (X right, Y up, Z in)
 
-        string cameraExtrinsics = CameraHandle.GetCameraExtrinsics();
-        string cameraIntrinsics = CameraHandle.GetCameraIntrinsics(width, height);
-        cameraParam["cameraExtrinsics"] = cameraExtrinsics;
-        cameraParam["cameraIntrinsics"] = cameraIntrinsics;
         _writer.WriteLine(cameraParam.ToJson());
     }
 
@@ -397,18 +376,6 @@ public partial class UICameraCtrl : MonoBehaviour
 
     private void OnApplicationPause(bool pauseStatus)
     {
-        if (CameraHandle.GetCaptureState() == (int)PXRCaptureState.CAPTURE_STATE_CAMERA_OPENING)
-        {
-            if (pauseStatus)
-            {
-                //release camera
-                CameraHandle.CloseCamera();
-            }
-            else
-            {
-                //reopen camera
-                CameraHandle.OpenCamera();
-            }
-        }
+        // do nothing for quest
     }
 }

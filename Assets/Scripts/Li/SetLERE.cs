@@ -28,9 +28,10 @@ public class SetLERE : MonoBehaviour
         heightCompressionFactor = heightCompression;
 
         // Log the updated values
-        Debug.Log($"Updated Ratios - visible: {visibleRatio}, content: {contentRatio}, heightCompression: {heightCompressionFactor}");
+        Debug.Log(
+            $"Updated Ratios - visible: {visibleRatio}, content: {contentRatio}, heightCompression: {heightCompressionFactor}");
     }
-    
+
     public void ResetCanvases()
     {
         CanvLE.SetActive(false);
@@ -41,21 +42,25 @@ public class SetLERE : MonoBehaviour
     {
         if ((!CanvLE.activeSelf) || (!CanvRE.activeSelf))
         {
-            CanvLE.SetActive(true);
-            CanvRE.SetActive(true);
+            var texture = remoteCameraWindow.Texture;
+            if (texture != null)
+            {
+                CanvLE.SetActive(true);
+                CanvRE.SetActive(true);
 
-            matLE.SetTexture("_mainRT", remoteCameraWindow.Texture);
-            matRE.SetTexture("_mainRT", remoteCameraWindow.Texture);
+                matLE.SetTexture("_mainRT", texture);
+                matRE.SetTexture("_mainRT", texture);
 
-            matLE.SetInt("_isLE", 1);
-            matRE.SetInt("_isLE", 0);
+                matLE.SetInt("_isLE", 1);
+                matRE.SetInt("_isLE", 0);
 
-            matLE.SetFloat("_visibleRatio", visibleRatio);
-            matRE.SetFloat("_visibleRatio", visibleRatio);
-            matLE.SetFloat("_contentRatio", contentRatio);
-            matRE.SetFloat("_contentRatio", contentRatio);
-            matLE.SetFloat("_heightCompressionFactor", heightCompressionFactor);
-            matRE.SetFloat("_heightCompressionFactor", heightCompressionFactor);
+                matLE.SetFloat("_visibleRatio", visibleRatio);
+                matRE.SetFloat("_visibleRatio", visibleRatio);
+                matLE.SetFloat("_contentRatio", contentRatio);
+                matRE.SetFloat("_contentRatio", contentRatio);
+                matLE.SetFloat("_heightCompressionFactor", heightCompressionFactor);
+                matRE.SetFloat("_heightCompressionFactor", heightCompressionFactor);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Q))

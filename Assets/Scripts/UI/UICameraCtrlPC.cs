@@ -146,8 +146,6 @@ public partial class UICameraCtrl
 
                 string ip = TcpHandler.GetTargetIP;
                 _recordTrackingData = false;
-                CameraHandle.StartCameraPreview(width, height, fps, bitrate, 0, captureRenderMode,
-                    () => { CameraHandle.StartSendImage(ip, port); });
             }
             else
             {

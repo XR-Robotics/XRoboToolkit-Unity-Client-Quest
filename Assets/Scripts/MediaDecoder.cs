@@ -10,7 +10,7 @@ public class MediaDecoder
     {
         if (_javaObj == null)
         {
-            _javaObj = new AndroidJavaObject("com.picovr.robotassistantlib.MediaDecoder");
+            _javaObj = new AndroidJavaObject("com.xrobotoolkit.visionplugin.quest.MediaDecoder");
         }
 
         return _javaObj;

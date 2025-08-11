@@ -24,7 +24,7 @@ namespace Robot.V2.Network
 
         public static ClientStatus Status { get; private set; } = ClientStatus.None;
 
-        public TcpClient() : base("com.picovr.robotassistantlib.TcpClient$ClientCallback")
+        public TcpClient() : base("com.xrobotoolkit.visionplugin.quest.TcpClient$ClientCallback")
         {
 
         }
@@ -35,7 +35,7 @@ namespace Robot.V2.Network
         {
             if (_javaObj == null)
             {
-                _javaObj = new AndroidJavaObject("com.picovr.robotassistantlib.TcpClient");
+                _javaObj = new AndroidJavaObject("com.xrobotoolkit.visionplugin.quest.TcpClient");
             }
 
             return _javaObj;

@@ -101,11 +101,7 @@ namespace Network
                 // The stream only works for the VR headset
                 if (cameraConfig.camera.Equals("VR"))
                 {
-                    CameraHandle.StartCameraPreview(cameraConfig.width, cameraConfig.height, cameraConfig.fps,
-                        cameraConfig.bitrate, cameraConfig.enableMvHevc,
-                        cameraConfig.renderMode,
-                        () => { CameraHandle.StartSendImage(cameraConfig.ip, cameraConfig.port); });
-                    // CameraSendToBtn.SetOn(true);
+                    // TODO: Support quest cameras in the future
                 }
             }
         }
@@ -117,7 +113,6 @@ namespace Network
                 Debug.Log("Handling CLOSE_CAMERA command with data: " + BitConverter.ToString(data));
                 LogWindow.Warn("Handling CLOSE_CAMERA command");
                 // Stop the camera preview
-                CameraHandle.StopPreview();
             }
         }
     }

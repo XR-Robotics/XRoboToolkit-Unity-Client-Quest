@@ -28,7 +28,7 @@ namespace Robot.V2.Network
 
         public static ServerStatus Status { get; private set; } = ServerStatus.None;
 
-        public TcpServer() : base("com.picovr.robotassistantlib.TcpServer$ServerCallback")
+        public TcpServer() : base("com.xrobotoolkit.visionplugin.quest.TcpServer$ServerCallback")
         {
 
         }
@@ -39,7 +39,7 @@ namespace Robot.V2.Network
         {
             if (_javaObj == null)
             {
-                _javaObj = new AndroidJavaObject("com.picovr.robotassistantlib.TcpServer");
+                _javaObj = new AndroidJavaObject("com.xrobotoolkit.visionplugin.quest.TcpServer");
             }
 
             return _javaObj;

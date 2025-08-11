@@ -49,7 +49,7 @@ public class RobotVisionUnityPluginQuest : MonoBehaviour
 
     void Start()
     {
-        // InitializePlugin();
+        InitializePlugin();
     }
 
     public void InitializeQuestPlugin(int width, int height, int port)
@@ -174,15 +174,7 @@ public class RobotVisionUnityPluginQuest : MonoBehaviour
 
     void OnApplicationPause(bool pauseStatus)
     {
-        if (pauseStatus)
-        {
-            CleanupPlugin();
-        }
-        else
-        {
-            // Reinitialize when app resumes
-            Start();
-        }
+        // Do nothing on pause, as the plugin handles its own state
     }
 
     private void CleanupPlugin()

@@ -20,7 +20,7 @@ public class RemoteCameraWindow : MonoBehaviour
     private TcpClient _client;
     private NetworkStream _stream;
     private Texture2D _texture;
-    public Texture2D Texture => _texture;
+    public Texture Texture => RemoteCameraImage.texture;
     private byte[] _imageBuffer;
     private CancellationTokenSource _receiveImageTs = null;
     private Task _imageReceiveTask;
@@ -30,7 +30,7 @@ public class RemoteCameraWindow : MonoBehaviour
     private int _videoFps = 60;
     private int _bitrate = 40 * 1024 * 1024;
 
-    public CustomButton listenBtn;
+    // public CustomButton listenBtn;
 
     public RobotVisionUnityPluginQuest questPlugin;
 
@@ -66,7 +66,7 @@ public class RemoteCameraWindow : MonoBehaviour
     public void OnCloseBtn()
     {
         // Reset listen button
-        listenBtn.SetOn(false);
+        // listenBtn.SetOn(false);
         // send close event to server
         NetworkCommander.Instance.CloseCamera();
         gameObject.SetActive(false);

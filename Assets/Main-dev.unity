@@ -3118,7 +3118,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 50
+  m_Spacing: 55.9
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -17333,7 +17333,7 @@ Transform:
   m_GameObject: {fileID: 557542395}
   serializedVersion: 2
   m_LocalRotation: {x: -0.051900197, y: 0, z: 0, w: 0.99865234}
-  m_LocalPosition: {x: 0, y: 0, z: 2}
+  m_LocalPosition: {x: 0, y: 1.264, z: 2}
   m_LocalScale: {x: 0.003, y: 0.003, z: 0.003}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -33746,11 +33746,11 @@ MonoBehaviour:
   CameraSendInputDialog: {fileID: 1603359318}
   ListenCameraBtn: {fileID: 1623431779}
   CameraSendToBtn: {fileID: 154211699}
-  ListenPCCameraBtn: {fileID: 1531909085}
+  ListenPCCameraBtn: {fileID: 0}
   cameraDropdown: {fileID: 1579461323}
   setLere: {fileID: 6009550096432242020}
   CameraStatusText: {fileID: 640930267}
-  listenBtn: {fileID: 1531909085}
+  listenBtn: {fileID: 1531909088}
   videoSourceManager: {fileID: 310954450}
   tcpManager: {fileID: 504576151}
   RecordDialog: {fileID: 1059263986}
@@ -40233,17 +40233,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1324581957}
   m_CullTransparentMesh: 1
---- !u!114 &1334725862 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4887141171940143076, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
-  m_PrefabInstance: {fileID: 950193329985917559}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1339304398
 GameObject:
   m_ObjectHideFlags: 0
@@ -40614,7 +40603,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!328 &1345252463
 VideoPlayer:
   m_ObjectHideFlags: 0
@@ -45302,6 +45291,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1520446688}
   m_CullTransparentMesh: 1
+--- !u!114 &1521271725 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4887141171940143076, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
+  m_PrefabInstance: {fileID: 950193329985917559}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1522635256
 GameObject:
   m_ObjectHideFlags: 0
@@ -45620,7 +45620,7 @@ GameObject:
   - component: {fileID: 1531909084}
   - component: {fileID: 1531909087}
   - component: {fileID: 1531909086}
-  - component: {fileID: 1531909085}
+  - component: {fileID: 1531909088}
   m_Layer: 5
   m_Name: Listen
   m_TagString: Untagged
@@ -45648,19 +45648,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 77.67, y: 28}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &1531909085
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1531909083}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 282be20b8ed8ad44bbabebce2e33d13a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selectedColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &1531909086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45699,6 +45686,62 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1531909083}
   m_CullTransparentMesh: 1
+--- !u!114 &1531909088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1531909083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 1531909086}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1113879291}
+        m_TargetAssemblyTypeName: UICameraCtrl, Assembly-CSharp
+        m_MethodName: OnListenCameraBtn
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
 --- !u!1 &1535600406
 GameObject:
   m_ObjectHideFlags: 0
@@ -47287,7 +47330,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1431559230}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.84566665
+  m_Size: 0.8456666
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -61165,7 +61208,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2067931205
 Transform:
   m_ObjectHideFlags: 0
@@ -61197,7 +61240,7 @@ MonoBehaviour:
   secondCamera: {fileID: 0}
   nearClipValueA: 0.1
   nearClipValueB: 0.35
-  remoteCameraWindow: {fileID: 0}
+  remoteCameraWindow: {fileID: 6009550096432242019}
 --- !u!1 &2068523359
 GameObject:
   m_ObjectHideFlags: 0
@@ -64620,10 +64663,18 @@ PrefabInstance:
       propertyPath: CanvRE
       value: 
       objectReference: {fileID: 1215458335}
+    - target: {fileID: 3273960107523461874, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4887141171940143076, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 2100000, guid: c46e58b12a130e349b51e8be91c33ccf, type: 2}
+    - target: {fileID: 4887141171940143078, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4887141171940143079, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
       propertyPath: m_SizeDelta.x
       value: 600
@@ -64635,7 +64686,11 @@ PrefabInstance:
     - target: {fileID: 6794232222909173523, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
       propertyPath: listenBtn
       value: 
-      objectReference: {fileID: 1531909085}
+      objectReference: {fileID: 0}
+    - target: {fileID: 6794232222909173523, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6794232222909173523, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
       propertyPath: questPlugin
       value: 
@@ -64646,7 +64701,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6794232222909173524, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6794232222909173525, guid: 92b6da76bbc09624fafe23d8a708eadd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -77542,7 +77597,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4186919eb56eac4bad98a3326338a3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rawImage: {fileID: 1334725862}
+  rawImage: {fileID: 1521271725}
   width: 2560
   height: 720
   port: 12345

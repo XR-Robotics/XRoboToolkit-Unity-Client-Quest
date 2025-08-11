@@ -10,7 +10,7 @@ public class MediaDecoderUDP
     {
         if (_javaObj == null)
         {
-            _javaObj = new AndroidJavaObject("com.picovr.robotassistantlib.MediaDecoderUDP");
+            _javaObj = new AndroidJavaObject("com.xrobotoolkit.visionplugin.quest.MediaDecoderUDP");
         }
 
         return _javaObj;

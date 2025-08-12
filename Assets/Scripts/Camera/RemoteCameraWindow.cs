@@ -69,6 +69,8 @@ public class RemoteCameraWindow : MonoBehaviour
         // listenBtn.SetOn(false);
         // send close event to server
         NetworkCommander.Instance.CloseCamera();
+        // Clean up plugin
+        questPlugin.CleanupPlugin();
         gameObject.SetActive(false);
     }
 

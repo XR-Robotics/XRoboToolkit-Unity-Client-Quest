@@ -48,14 +48,11 @@ public class LogWindow : MonoBehaviour
 
     public void AppendText(string message)
     {
-        if (_instance != null)
-        {
-            // add time prefix of local timezone to the message
-            string timePrefix = $"[{System.DateTime.Now:HH:mm:ss}] ";
-            _instance.text.text += $"{timePrefix}{message}\n";
+        // add time prefix of local timezone to the message
+        string timePrefix = $"[{System.DateTime.Now:HH:mm:ss}] ";
+        text.text += $"{timePrefix}{message}\n";
 
-            StartCoroutine(AutoScrollCoroutine());
-        }
+        StartCoroutine(AutoScrollCoroutine());
     }
 
     private static void Message(string message)
@@ -63,6 +60,10 @@ public class LogWindow : MonoBehaviour
         if (_instance != null)
         {
             _instance.AppendText(message);
+        }
+        else
+        {
+            _instance = FindObjectOfType<LogWindow>();
         }
     }
 

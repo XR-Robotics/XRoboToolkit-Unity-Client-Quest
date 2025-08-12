@@ -94,6 +94,9 @@ public class UIOperate : MonoBehaviour
         {
             Debug.LogWarning("SendDataAction.action is null - input action not properly configured");
         }
+        
+        // set FPS to 90
+        OVRPlugin.systemDisplayFrequency = 90.0f;
     }
 
     private void OnSourceConfigOnOnInitialized()

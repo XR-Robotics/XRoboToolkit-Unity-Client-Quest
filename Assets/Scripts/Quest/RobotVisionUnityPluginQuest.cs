@@ -177,7 +177,7 @@ public class RobotVisionUnityPluginQuest : MonoBehaviour
         // Do nothing on pause, as the plugin handles its own state
     }
 
-    private void CleanupPlugin()
+    public void CleanupPlugin()
     {
         try
         {

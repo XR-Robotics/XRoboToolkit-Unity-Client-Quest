@@ -346,7 +346,13 @@ public partial class UICameraCtrl : MonoBehaviour
         Debug.Log("OnStartRecordTracking");
         string timeStamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         string trackingFileName = $"trackingData_{timeStamp}.txt";
+        
         string filePath = Path.Combine("/sdcard/Download/", trackingFileName);
+        
+        #if UNITY_EDITOR
+            filePath = Path.Combine(Application.persistentDataPath, trackingFileName);
+        #endif
+        
         Debug.Log("trackingFilePath:" + filePath);
         LogWindow.Warn("Tracking file path:" + filePath);
         _writer = new StreamWriter(filePath, true);
@@ -360,6 +366,8 @@ public partial class UICameraCtrl : MonoBehaviour
         //Convert coordinate system to right-handed system (X right, Y up, Z in)
 
         _writer.WriteLine(cameraParam.ToJson());
+        // Update status
+        _recordTrackingData = true;
     }
 
     private void Update()

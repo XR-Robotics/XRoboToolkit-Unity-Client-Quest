@@ -10,6 +10,8 @@ public class ToggleCameraClippingPlane : MonoBehaviour
 
     [SerializeField] private Camera secondCamera;
 
+    public Camera centerCamera;
+
     [Header("Clipping Plane Values")]
     [SerializeField]
     private float nearClipValueA = 0.1f;
@@ -44,70 +46,34 @@ public class ToggleCameraClippingPlane : MonoBehaviour
             float firstCameraOriginal = firstCamera != null ? firstCamera.nearClipPlane : -1f;
             float secondCameraOriginal = secondCamera != null ? secondCamera.nearClipPlane : -1f;
 
-            // Apply to first camera
-            if (firstCamera != null)
-            {
-                firstCamera.nearClipPlane = newClipValue;
-                Debug.Log($"First camera '{firstCamera.name}' near clip plane changed from {firstCameraOriginal} to: {firstCamera.nearClipPlane} (expected: {newClipValue})");
-            }
-            else
-            {
-                Debug.LogWarning("First camera is null!");
-            }
-
-            // Apply to second camera
-            if (secondCamera != null)
-            {
-                secondCamera.nearClipPlane = newClipValue;
-                Debug.Log($"Second camera '{secondCamera.name}' near clip plane changed from {secondCameraOriginal} to: {secondCamera.nearClipPlane} (expected: {newClipValue})");
-            }
-            else
-            {
-                Debug.LogWarning("Second camera is null!");
-            }
-
-            // Force a frame delay verification
-            StartCoroutine(VerifyCameraSettings(newClipValue));
+            // // Apply to first camera
+            // if (firstCamera != null)
+            // {
+            //     firstCamera.nearClipPlane = newClipValue;
+            //     Debug.Log($"First camera '{firstCamera.name}' near clip plane changed from {firstCameraOriginal} to: {firstCamera.nearClipPlane} (expected: {newClipValue})");
+            // }
+            // else
+            // {
+            //     Debug.LogWarning("First camera is null!");
+            // }
+            //
+            // // Apply to second camera
+            // if (secondCamera != null)
+            // {
+            //     secondCamera.nearClipPlane = newClipValue;
+            //     Debug.Log($"Second camera '{secondCamera.name}' near clip plane changed from {secondCameraOriginal} to: {secondCamera.nearClipPlane} (expected: {newClipValue})");
+            // }
+            // else
+            // {
+            //     Debug.LogWarning("Second camera is null!");
+            // }
+            //
+            centerCamera.nearClipPlane = newClipValue;
 
             Debug.Log($"Both cameras near clip plane should now be: {newClipValue}");
         }
 
         // Update button state
         wasButtonPressed = buttonValue;
-    }
-
-    private IEnumerator VerifyCameraSettings(float expectedValue)
-    {
-        yield return null; // Wait one frame
-
-        if (firstCamera != null)
-        {
-            if (Mathf.Approximately(firstCamera.nearClipPlane, expectedValue))
-            {
-                Debug.Log($"✓ First camera '{firstCamera.name}' clip plane verified: {firstCamera.nearClipPlane}");
-            }
-            else
-            {
-                Debug.LogWarning($"✗ First camera '{firstCamera.name}' clip plane mismatch! Expected: {expectedValue}, Actual: {firstCamera.nearClipPlane}");
-                // Force set again
-                firstCamera.nearClipPlane = expectedValue;
-                Debug.Log($"Forced first camera clip plane to: {expectedValue}");
-            }
-        }
-
-        if (secondCamera != null)
-        {
-            if (Mathf.Approximately(secondCamera.nearClipPlane, expectedValue))
-            {
-                Debug.Log($"✓ Second camera '{secondCamera.name}' clip plane verified: {secondCamera.nearClipPlane}");
-            }
-            else
-            {
-                Debug.LogWarning($"✗ Second camera '{secondCamera.name}' clip plane mismatch! Expected: {expectedValue}, Actual: {secondCamera.nearClipPlane}");
-                // Force set again
-                secondCamera.nearClipPlane = expectedValue;
-                Debug.Log($"Forced second camera clip plane to: {expectedValue}");
-            }
-        }
     }
 }

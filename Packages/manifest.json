@@ -3,6 +3,7 @@
     "com.meta.xr.sdk.interaction.ovr": "72.0.0",
     "com.unity.collab-proxy": "2.8.2",
     "com.unity.feature.development": "1.0.1",
+    "com.unity.shadergraph": "14.0.9",
     "com.unity.textmeshpro": "3.0.7",
     "com.unity.timeline": "1.7.7",
     "com.unity.ugui": "1.0.0",

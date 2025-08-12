@@ -54,14 +54,14 @@
                 
                 fixed4 col = fixed4(0.0, 0.0, 0.0, 0.0);
                 
-                // // Automatically detect which eye we're rendering for
-                // bool isLeftEye = (unity_StereoEyeIndex == 0);
+                // Automatically detect which eye we're rendering for
+                bool isLeftEye = (unity_StereoEyeIndex == 0);
                 
                 // Adjust UV coordinates based on eye
                 float2 adjusted_uv = i.uv;
                 
                 // Apply the x shift to the clipping center
-                if(_isLE) // Left eye
+                if(isLeftEye) // Left eye
                 {
                     adjusted_uv.x = i.uv.x + 0.08/2; // Shift left for left eye
                 }
@@ -92,7 +92,7 @@
                 // Apply height compression
                 new_uv.y = (new_uv.y - 0.5) * _heightCompressionFactor + 0.5;
                 
-                if(_isLE) // Left eye
+                if(isLeftEye) // Left eye
                 {
                     // Apply content ratio with consistent centering
                     float scaled_x = new_uv.x * _contentRatio + (1.0 - _contentRatio) * 0.5 + 0.08;

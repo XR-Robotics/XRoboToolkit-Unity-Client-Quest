@@ -377,6 +377,7 @@ public partial class UICameraCtrl : MonoBehaviour
             if (_writer != null)
             {
                 _trackingData.Get(ref _trackingJsonData);
+                print(_trackingJsonData.ToString());
                 _writer.WriteLine(_trackingJsonData.ToJson());
             }
         }

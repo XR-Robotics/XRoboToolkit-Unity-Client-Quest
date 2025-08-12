@@ -9,6 +9,7 @@ public class SetLERE : MonoBehaviour
 
     public GameObject CanvLE;
     public GameObject CanvRE;
+    public GameObject CanvCE;
     public RemoteCameraWindow remoteCameraWindow;
     public Material matLE;
 
@@ -36,14 +37,16 @@ public class SetLERE : MonoBehaviour
     {
         CanvLE.SetActive(false);
         CanvRE.SetActive(false);
+        CanvCE.SetActive(false);
     }
 
     void Update()
     {
-        if ((!CanvLE.activeSelf) || (!CanvRE.activeSelf))
+        if (!CanvCE.activeSelf)
         {
-            CanvLE.SetActive(true);
-            CanvRE.SetActive(true);
+            // CanvLE.SetActive(true);
+            // CanvRE.SetActive(true);
+            CanvCE.SetActive(true);
             var texture = remoteCameraWindow.Texture;
             if (texture != null)
             {

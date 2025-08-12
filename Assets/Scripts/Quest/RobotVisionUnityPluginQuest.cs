@@ -165,6 +165,10 @@ public class RobotVisionUnityPluginQuest : MonoBehaviour
     void Update()
     {
         // The native plugin handles automatic frame updates via SurfaceTexture callbacks
+        if (externalTexture != null && nativeTexPtrSet)
+        {
+            externalTexture.UpdateExternalTexture(nativeTexPtr);   
+        }
     }
 
     void OnDestroy()

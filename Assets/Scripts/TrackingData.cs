@@ -197,7 +197,7 @@ namespace Robot
                 pose = questTrackingDataSource.GetControllerPose(Handedness.Right);
             }
             
-            Debug.Log("Handedness: " + handedness + ", Controller: " + controller.name + ", Pose: " + pose);
+            // Debug.Log("Handedness: " + handedness + ", Controller: " + controller.name + ", Pose: " + pose);
 
             var json = new JsonData();
             GetControllerJsonData(controller, ref json);
@@ -266,9 +266,9 @@ namespace Robot
 
         private void GetOVRHandTrackingData(Handedness handedness, ref JsonData json)
         {
-            var status = questTrackingDataSource.IsHandTrackingActive(handedness);
+            var isActive = questTrackingDataSource.IsHandTrackingActive(handedness);
 
-            json["isActive"] = status ? 1U : 0U;
+            json["isActive"] = isActive ? 1U : 0U;
             json["count"] = 26; // Total number of bones
             json["scale"] = 1.0f;
 
@@ -281,6 +281,12 @@ namespace Robot
 
             questTrackingDataSource.GetJoints(handedness, ref joints);
 
+            ulong status = 0x01 | 0x02 | 0x04 | 0x08; // Default status flags
+            // status |= 0x01; // Position valid
+            // status |= 0x02; // Position tracked
+            // status |= 0x04; // Orientation valid
+            // status |= 0x08; // Orientation tracked
+
             foreach (var joint in joints)
             {
                 var position = joint.position;
@@ -292,10 +298,10 @@ namespace Robot
 
                 jointJson["p"] = GetPoseStr(position, rotation);
 
-                jointJson["s"] = status ? 1 : 0;
+                jointJson["s"] = status;
 
                 // Set radius (can be obtained from skeleton or use default)
-                jointJson["r"] = 0.0f;
+                jointJson["r"] = 0.01f;
 
                 jointLocationsJson.Add(jointJson);
             }

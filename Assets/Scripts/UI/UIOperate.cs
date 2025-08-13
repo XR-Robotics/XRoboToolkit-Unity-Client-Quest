@@ -315,24 +315,26 @@ public class UIOperate : MonoBehaviour
     {
         TrackingData.SetControllerOn(on);
 
-        // Ensure mutual exclusivity with HandTrackingTog
-        if (on && HandTrackingTog.isOn)
-        {
-            HandTrackingTog.SetIsOnWithoutNotify(false);
-            TrackingData.SetHandTrackingOn(false);
-        }
+        // Disable on quest for now
+        // // Ensure mutual exclusivity with HandTrackingTog
+        // if (on && HandTrackingTog.isOn)
+        // {
+        //     HandTrackingTog.SetIsOnWithoutNotify(false);
+        //     TrackingData.SetHandTrackingOn(false);
+        // }
     }
 
     private void OnHandTrackingTog(bool on)
     {
         TrackingData.SetHandTrackingOn(on);
 
-        // Ensure mutual exclusivity with ControllerTog
-        if (on && ControllerTog.isOn)
-        {
-            ControllerTog.SetIsOnWithoutNotify(false);
-            TrackingData.SetControllerOn(false);
-        }
+        // Disable on quest for now
+        // // Ensure mutual exclusivity with ControllerTog
+        // if (on && ControllerTog.isOn)
+        // {
+        //     ControllerTog.SetIsOnWithoutNotify(false);
+        //     TrackingData.SetControllerOn(false);
+        // }
     }
 
     private void OnSendTog(bool on)

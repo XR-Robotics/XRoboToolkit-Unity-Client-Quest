@@ -33,7 +33,7 @@ public class UIOperate : MonoBehaviour
     public GameObject CameraObj;
     public GameObject IpInputDialog;
     public GameObject ExtDevPanel;
-    public InputAction SendDataAction;
+    public InputActionProperty SendDataAction;
 
     [Space(30)][Header("Refactoring")] public VideoSourceManager videoSource;
     public VideoSourceConfigManager sourceConfig => videoSource.videoSourceConfigManager;
@@ -87,7 +87,7 @@ public class UIOperate : MonoBehaviour
         // Enable SendDataAction for Quest controllers
         if (SendDataAction != null)
         {
-            SendDataAction.Enable();
+            SendDataAction.action.Enable();
             Debug.Log("SendDataAction enabled successfully");
         }
         else
@@ -412,7 +412,7 @@ public class UIOperate : MonoBehaviour
         if (AcontrolerTog != null && AcontrolerTog.isOn)
         {
             // Use Input Actions only
-            if (SendDataAction != null && SendDataAction.WasReleasedThisFrame())
+            if (SendDataAction != null && SendDataAction.action.WasReleasedThisFrame())
             {
                 SendTog.isOn = !SendTog.isOn;
                 LogWindow.Info("Sending data: " + SendTog.isOn);
@@ -431,7 +431,7 @@ public class UIOperate : MonoBehaviour
         // Disable SendDataAction when object is destroyed
         if (SendDataAction != null)
         {
-            SendDataAction.Disable();
+            SendDataAction.action.Disable();
         }
     }
 }

@@ -784,10 +784,6 @@ MonoBehaviour:
   headset: {fileID: 1580424739}
   leftHandVisual: {fileID: 1004159071}
   rightHandVisual: {fileID: 1958797163}
-  leftHandSkinMesh: {fileID: 126217611}
-  rightHandSkinMesh: {fileID: 1763177033}
-  leftHandWrist: {fileID: 1412948435}
-  rightHandWrist: {fileID: 1413534243}
   leftHandJoints:
   - {fileID: 2049563687}
   - {fileID: 1826838387}
@@ -4029,11 +4025,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 
---- !u!137 &126217611 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 8568425809100322518, guid: 314f6e1da20902f4ba50509fa6eb8fa8, type: 3}
-  m_PrefabInstance: {fileID: 683503877}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &129128053
 GameObject:
   m_ObjectHideFlags: 0
@@ -16721,14 +16712,25 @@ MonoBehaviour:
   IpInputDialog: {fileID: 192589141}
   ExtDevPanel: {fileID: 115314625}
   SendDataAction:
-    m_Name: Send Data
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: d4cb5614-7d52-49d3-a970-6ff0c6821426
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
+    m_UseReference: 0
+    m_Action:
+      m_Name: Send Data
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: d29b2fd6-5566-4994-aa26-90386076b3b1
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 80c735ac-cc9d-4e67-9d4b-e1f0ce25a647
+        m_Path: <XRController>{RightHand}/{PrimaryButton}
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Send Data
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   videoSource: {fileID: 310954450}
   videoSourceDropdown: {fileID: 1579461323}
 --- !u!1 &561206379
@@ -40613,16 +40615,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1412238092}
   m_CullTransparentMesh: 1
---- !u!4 &1412948435 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8059600756279598333, guid: 314f6e1da20902f4ba50509fa6eb8fa8, type: 3}
-  m_PrefabInstance: {fileID: 683503877}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1413534243 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8810384274466879884, guid: 314f6e1da20902f4ba50509fa6eb8fa8, type: 3}
-  m_PrefabInstance: {fileID: 683503877}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1417160644
 GameObject:
   m_ObjectHideFlags: 0
@@ -49560,11 +49552,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1758287366}
   m_CullTransparentMesh: 1
---- !u!137 &1763177033 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 5204525475531884821, guid: 314f6e1da20902f4ba50509fa6eb8fa8, type: 3}
-  m_PrefabInstance: {fileID: 683503877}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1766436684
 GameObject:
   m_ObjectHideFlags: 0
@@ -74844,14 +74831,17 @@ MonoBehaviour:
   IpInputDialog: {fileID: 7372409195406379079}
   ExtDevPanel: {fileID: 3025328156030443757}
   SendDataAction:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: dcc4d0a5-3728-4680-9e3e-8b316a9c707c
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
+    m_UseReference: 0
+    m_Action:
+      m_Name: 
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: d6b72325-024c-49d5-9bfb-817a53654690
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   videoSource: {fileID: 310954450}
   videoSourceDropdown: {fileID: 1353258512}
 --- !u!4 &6350997828568263135

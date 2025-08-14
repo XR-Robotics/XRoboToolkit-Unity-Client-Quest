@@ -1,4 +1,5 @@
-﻿using Oculus.Interaction;
+﻿using System;
+using Oculus.Interaction;
 using Oculus.Interaction.Input;
 using Oculus.Interaction.Input.Visuals;
 using UnityEngine;
@@ -27,14 +28,13 @@ public class QuestTrackingDataSource : MonoBehaviour
         {
             return 2; // handtracking
         }
-        else if (leftController.IsConnected || rightController.IsConnected)
+
+        if (leftController.IsConnected || rightController.IsConnected)
         {
             return 1; // controller
         }
-        else
-        {
-            return 0; // by default return headset
-        }
+
+        return 0; // by default return headset
     }
 
     public (bool, Pose) GetHeadsetPose()
@@ -61,8 +61,6 @@ public class QuestTrackingDataSource : MonoBehaviour
             var rot = rightControllerVisual.transform.rotation;
             return new Pose(pos, rot);
         }
-
-        return Pose.identity;
     }
 
     public bool IsControllerActive(Handedness handedness)
@@ -71,10 +69,8 @@ public class QuestTrackingDataSource : MonoBehaviour
         {
             return leftController.IsPoseValid;
         }
-        else
-        {
-            return rightController.IsPoseValid;
-        }
+
+        return rightController.IsPoseValid;
     }
 
     public bool IsHandTrackingActive(Handedness handedness)
@@ -83,10 +79,8 @@ public class QuestTrackingDataSource : MonoBehaviour
         {
             return leftHandSkinMesh.isVisible;
         }
-        else
-        {
-            return rightHandSkinMesh.isVisible;
-        }
+
+        return rightHandSkinMesh.isVisible;
     }
 
     // public void GetJoints(Handedness handedness, ref Pose[] joints)
@@ -133,14 +127,30 @@ public class QuestTrackingDataSource : MonoBehaviour
         HandVisual handVisual = handedness == Handedness.Left ? leftHandVisual : rightHandVisual;
         var joints = handVisual.Joints;
         Assert.IsTrue(joints.Count == 26, "Expected 26 joints in the hand visual.");
+        Vector3 position = Vector3.zero;
+        Quaternion rotation = Quaternion.identity;
         // first is palm, second is wrist in visual
-        poses[0] = joints[1].GetPose(); // wrist
-        poses[1] = joints[0].GetPose(); // palm
+        handVisual.Root.GetPositionAndRotation(out position, out rotation); // wrist
+        poses[0].position = position;
+        poses[0].rotation = rotation;
+
+        joints[0].GetPositionAndRotation(out position, out rotation); // wrist
+        poses[1].position = position;
+        poses[1].rotation = rotation;
+
+        for (var i = 0; i < 26; i++)
+        {
+            joints[i].GetPositionAndRotation(out position, out rotation); // wrist
+            Debug.Log("QuestTrackingDataSource.GetJoints: Joint " + i + " position: " + position + ", rotation: " +
+                      rotation);
+        }
 
         for (var i = 2; i < joints.Count; i++)
         {
-            poses[i] = joints[i].GetPose(); // other joints
+            joints[i].GetPositionAndRotation(out position, out rotation);
+
+            poses[i].position = position;
+            poses[i].rotation = rotation;
         }
     }
-
 }

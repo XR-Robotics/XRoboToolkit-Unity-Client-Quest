@@ -276,16 +276,10 @@ namespace Robot
             jointLocationsJson.SetJsonType(JsonType.Array);
             json["HandJointLocations"] = jointLocationsJson;
 
-
             Pose[] joints = new Pose[26]; // to be global variable
 
             questTrackingDataSource.GetJoints(handedness, ref joints);
-
-            ulong status = 0x01 | 0x02 | 0x04 | 0x08; // Default status flags
-            // status |= 0x01; // Position valid
-            // status |= 0x02; // Position tracked
-            // status |= 0x04; // Orientation valid
-            // status |= 0x08; // Orientation tracked
+            float status = isActive ? 15.0f : 0.0f;
 
             foreach (var joint in joints)
             {
@@ -300,8 +294,8 @@ namespace Robot
 
                 jointJson["s"] = status;
 
-                // Set radius (can be obtained from skeleton or use default)
-                jointJson["r"] = 0.01f;
+                // Comply with PICO 4U output
+                jointJson["r"] = 0.0f;
 
                 jointLocationsJson.Add(jointJson);
             }

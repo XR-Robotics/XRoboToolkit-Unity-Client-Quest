@@ -127,11 +127,17 @@
                     float u = col.g - 0.5;
                     float v = col.b - 0.5;
                     
-                    // ITU-R BT.601 conversion matrix
+                    // // ITU-R BT.601 conversion matrix
+                    // fixed3 rgb;
+                    // rgb.r = saturate(y + 1.402 * v);
+                    // rgb.g = saturate(y - 0.344 * u - 0.714 * v);
+                    // rgb.b = saturate(y + 1.772 * u);
+
+                    // BT.709 conversion matrix
                     fixed3 rgb;
-                    rgb.r = saturate(y + 1.402 * v);
-                    rgb.g = saturate(y - 0.344 * u - 0.714 * v);
-                    rgb.b = saturate(y + 1.772 * u);
+                    rgb.r = saturate(y + 1.5748 * v);
+                    rgb.g = saturate(y - 0.1873 * u - 0.4681 * v);
+                    rgb.b = saturate(y + 1.8556 * u);
                     
                     col.rgb = rgb;
                 }

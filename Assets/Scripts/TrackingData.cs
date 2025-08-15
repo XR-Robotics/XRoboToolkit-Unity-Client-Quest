@@ -45,21 +45,37 @@ namespace Robot
             }
         }
 
+        /// <summary>
+        /// Sets whether head tracking is enabled
+        /// </summary>
+        /// <param name="on">True to enable head tracking, false to disable</param>
         public static void SetHeadOn(bool on)
         {
             HeadOn = on;
         }
 
+        /// <summary>
+        /// Sets whether controller tracking is enabled
+        /// </summary>
+        /// <param name="on">True to enable controller tracking, false to disable</param>
         public static void SetControllerOn(bool on)
         {
             ControllerOn = on;
         }
 
+        /// <summary>
+        /// Sets whether hand tracking is enabled
+        /// </summary>
+        /// <param name="on">True to enable hand tracking, false to disable</param>
         public static void SetHandTrackingOn(bool on)
         {
             HandTrackingOn = on;
         }
 
+        /// <summary>
+        /// Sets the current tracking type (None, Body, Motion)
+        /// </summary>
+        /// <param name="trackingType">The tracking type to set</param>
         public static void SetTrackingType(TrackingType trackingType)
         {
             TrackingTypeValue = trackingType;
@@ -74,6 +90,11 @@ namespace Robot
             }
         }
 
+        /// <summary>
+        /// Gathers all tracking data and populates the provided JsonData with current sensor information
+        /// Includes head, controller, and hand tracking data based on enabled features
+        /// </summary>
+        /// <param name="totalData">The JsonData object to populate with tracking information</param>
         public void Get(ref JsonData totalData)
         {
             try
@@ -143,7 +164,15 @@ namespace Robot
                     totalData["Input"] = 0;
             }
         }
-
+        
+        /// <summary>
+        /// Converts coordinate system handedness by flipping Z-axis and adjusting rotation
+        /// Unity uses left-handed coordinates, but output needs right-handed coordinates,
+        /// but the output needs to match PICO's right-handed (the same as OpenXR and Robot) system.
+        /// This method can convert left-handed coordinates to right-handed, and vice versa.
+        /// </summary>
+        /// <param name="position">Position vector to convert</param>
+        /// <param name="rotation">Rotation quaternion to convert</param>
         void ConvertHandedness(ref Vector3 position, ref Quaternion rotation)
         {
             position.z *= -1;
@@ -151,6 +180,10 @@ namespace Robot
             rotation.w *= -1;
         }
 
+        /// <summary>
+        /// Gets head tracking data including pose and status information
+        /// </summary>
+        /// <returns>JsonData containing head pose and tracking status</returns>
         private JsonData GetHeadTrackingData()
         {
             JsonData jsonData = new JsonData();
@@ -172,16 +205,21 @@ namespace Robot
             return jsonData;
         }
 
+        /// <summary>
+        /// Gets the currently active input device type
+        /// </summary>
+        /// <returns>Integer representing the active input device</returns>
         private int GetActiveInputDevice()
         {
             return questTrackingDataSource.GetActiveInputDevice();
         }
 
-
-        // Remove PICO-specific tracking methods - these would need OpenXR equivalents
-        // GetMotionTracking() and GetBodyTracking() methods removed
-        // These features would require specific OpenXR extensions or alternative implementations
-
+        /// <summary>
+        /// Gets controller tracking data for the specified hand
+        /// </summary>
+        /// <param name="predictTime">Prediction time for the controller data</param>
+        /// <param name="handedness">Which hand controller to get data for (Left or Right)</param>
+        /// <returns>JsonData containing controller pose and button states</returns>
         private JsonData GetControllerJsonData(double predictTime, Handedness handedness)
         {
             InputDevice controller;
@@ -196,7 +234,7 @@ namespace Robot
                 controller = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
                 pose = questTrackingDataSource.GetControllerPose(Handedness.Right);
             }
-            
+
             // Debug.Log("Handedness: " + handedness + ", Controller: " + controller.name + ", Pose: " + pose);
 
             var json = new JsonData();
@@ -209,6 +247,11 @@ namespace Robot
             return json;
         }
 
+        /// <summary>
+        /// Gets tracking data for both left and right controllers
+        /// </summary>
+        /// <param name="predictTime">Prediction time for the controller data</param>
+        /// <returns>JsonData containing both left and right controller data</returns>
         private JsonData GetLeftRightControllerJsonData(double predictTime)
         {
             _leftControllerJson = GetControllerJsonData(predictTime, Handedness.Left);
@@ -220,6 +263,11 @@ namespace Robot
             return _controllerDataJson;
         }
 
+        /// <summary>
+        /// Extracts button and axis data from a controller device and populates JsonData
+        /// </summary>
+        /// <param name="controllerDevice">The input device to read from</param>
+        /// <param name="json">The JsonData object to populate with controller input data</param>
         private static void GetControllerJsonData(InputDevice controllerDevice, ref JsonData json)
         {
             controllerDevice.TryGetFeatureValue(CommonUsages.primary2DAxis, out var axis2D);
@@ -230,14 +278,6 @@ namespace Robot
             controllerDevice.TryGetFeatureValue(CommonUsages.secondaryButton, out var secondaryButton);
             controllerDevice.TryGetFeatureValue(CommonUsages.menuButton, out var menuButton);
 
-            // controllerDevice.TryGetFeatureValue(CommonUsages.devicePosition, out var position);
-            // controllerDevice.TryGetFeatureValue(CommonUsages.deviceRotation, out var rotation);
-
-            // // Adjust to match the PICO coordinate system
-            // position.z *= -1;
-            // rotation.z *= -1;
-            // rotation.w *= -1;
-
             json["axisX"] = axis2D.x;
             json["axisY"] = axis2D.y;
             json["axisClick"] = axisClick;
@@ -246,10 +286,14 @@ namespace Robot
             json["primaryButton"] = primaryButton;
             json["secondaryButton"] = secondaryButton;
             json["menuButton"] = menuButton;
+            // Pose will be set by the QuestTrackingDataSource
             // json["pose"] = GetPoseStr(position, rotation);
         }
 
 
+        /// <summary>
+        /// Gathers hand tracking data for both left and right hands
+        /// </summary>
         private void GetHandJsonData()
         {
             // Clear previous data
@@ -264,6 +308,11 @@ namespace Robot
             _handData["rightHand"] = _rightHandData;
         }
 
+        /// <summary>
+        /// Gets hand tracking data for a specific hand using OVR hand tracking system
+        /// </summary>
+        /// <param name="handedness">Which hand to get data for (Left or Right)</param>
+        /// <param name="json">JsonData object to populate with hand tracking information</param>
         private void GetOVRHandTrackingData(Handedness handedness, ref JsonData json)
         {
             var isActive = questTrackingDataSource.IsHandTrackingActive(handedness);
@@ -431,6 +480,12 @@ namespace Robot
         // }
 
 
+        /// <summary>
+        /// Converts position and rotation data into a comma-separated string format
+        /// </summary>
+        /// <param name="position">3D position vector</param>
+        /// <param name="rotation">Rotation quaternion</param>
+        /// <returns>String representation of pose in format: x,y,z,qx,qy,qz,qw</returns>
         private static string GetPoseStr(Vector3 position, Quaternion rotation)
         {
             return position.x.ToString("R") + "," + position.y.ToString("R") + "," + position.z.ToString("R") + "," +

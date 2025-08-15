@@ -25,6 +25,11 @@ public class UISurroundDrag : MonoBehaviour, IPointerDownHandler, IPointerUpHand
         }
     }
 
+    /// <summary>
+    /// Handles pointer down events for XR UI interaction
+    /// Initiates dragging operation and stores initial state
+    /// </summary>
+    /// <param name="eventData">Pointer event data from UI system</param>
     public void OnPointerDown(PointerEventData eventData)
     {
         TrackedDeviceEventData deviceEventData = eventData as TrackedDeviceEventData;
@@ -75,10 +80,15 @@ public class UISurroundDrag : MonoBehaviour, IPointerDownHandler, IPointerUpHand
         }
     }
 
+    /// <summary>
+    /// Handles pointer up events for XR UI interaction
+    /// Completes dragging operation or toggles panel if minimal movement occurred
+    /// </summary>
+    /// <param name="eventData">Pointer event data from UI system</param>
     public void OnPointerUp(PointerEventData eventData)
     {
         float angle = Quaternion.Angle(_originQua, Target.rotation);
-//Judging that the angle has not changed
+        //Judging that the angle has not changed
         if (angle < 1)
         {
             if (Panel != null)
@@ -93,6 +103,11 @@ public class UISurroundDrag : MonoBehaviour, IPointerDownHandler, IPointerUpHand
         _pressedInputModel = null;
     }
 
+    /// <summary>
+    /// Adjusts Euler angles to be within the standard range (-180 to 180 degrees)
+    /// </summary>
+    /// <param name="angles">Input Euler angles vector</param>
+    /// <returns>Adjusted Euler angles within standard range</returns>
     public static Vector3 AdjustEulerAngles(Vector3 angles)
     {
         angles.x = AdjustAngle(angles.x);
@@ -101,6 +116,11 @@ public class UISurroundDrag : MonoBehaviour, IPointerDownHandler, IPointerUpHand
         return angles;
     }
 
+    /// <summary>
+    /// Adjusts a single angle to be within the standard range (-180 to 180 degrees)
+    /// </summary>
+    /// <param name="angle">Input angle in degrees</param>
+    /// <returns>Adjusted angle within standard range</returns>
     public static float AdjustAngle(float angle)
     {
         if (angle > 180)

@@ -76,6 +76,10 @@ namespace Robot.V2.Network
 
         #region Server
 
+        /// <summary>
+        /// Handles TCP server error events and logs them
+        /// </summary>
+        /// <param name="msg">Error message from the server</param>
         private void OnError(string msg)
         {
             Utils.WriteLog(serverTag, msg);
@@ -92,6 +96,11 @@ namespace Robot.V2.Network
         //     Utils.WriteLog(serverTag, $"data: {s} length: {length}");
         // }
 
+        /// <summary>
+        /// Handles incoming data from TCP clients and schedules callback execution on main thread
+        /// </summary>
+        /// <param name="data">Received data as byte array</param>
+        /// <param name="length">Length of the received data</param>
         private void OnDataReceived(byte[] data, int length)
         {
             // Refer: https://github.com/googleads/googleads-mobile-unity/blob/master/samples/HelloWorld/Assets/Scripts/GoogleAdMobController.cs#L63
@@ -109,26 +118,42 @@ namespace Robot.V2.Network
             }
         }
 
+        /// <summary>
+        /// Handles client disconnection events
+        /// </summary>
         private void OnClientDisconnected()
         {
             Utils.WriteLog(serverTag, "Disconnected");
         }
 
+        /// <summary>
+        /// Handles server stopped events
+        /// </summary>
         private void OnServerStopped()
         {
             Utils.WriteLog(serverTag, "Stopped");
         }
 
+        /// <summary>
+        /// Handles server started events and logs the port information
+        /// </summary>
+        /// <param name="port">The port the server started on</param>
         private void OnServerStarted(int port)
         {
             Utils.WriteLog(serverTag, $"Started: {port}");
         }
 
+        /// <summary>
+        /// Starts the TCP server on the configured port
+        /// </summary>
         public void StartServer()
         {
             TcpServer.StartTCPServer(port, OnServerStarted);
         }
 
+        /// <summary>
+        /// Stops the TCP server and logs the operation
+        /// </summary>
         public void StopServer()
         {
             Utils.WriteLog(serverTag, $"Stopping Server");

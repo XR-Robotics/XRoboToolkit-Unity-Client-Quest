@@ -35,6 +35,10 @@ namespace Robot.V2.Network
 
         private static AndroidJavaObject _javaObj = null;
 
+        /// <summary>
+        /// Gets or creates the Java TcpServer object for native Android integration
+        /// </summary>
+        /// <returns>AndroidJavaObject instance of the TcpServer</returns>
         private static AndroidJavaObject GetJavaObject()
         {
             if (_javaObj == null)
@@ -45,6 +49,11 @@ namespace Robot.V2.Network
             return _javaObj;
         }
 
+        /// <summary>
+        /// Starts a TCP server on the specified port
+        /// </summary>
+        /// <param name="port">Port number to listen on</param>
+        /// <param name="onServerStarted">Callback to execute when server is started</param>
         public static void StartTCPServer(int port, Action<int> onServerStarted)
         {
             LogWindow.Info($"Starting TCP server on port {port}");
@@ -54,6 +63,9 @@ namespace Robot.V2.Network
             Status = ServerStatus.Started;
         }
 
+        /// <summary>
+        /// Stops the TCP server
+        /// </summary>
         public static void StopServer()
         {
             LogWindow.Info("Stopping TCP server");
@@ -62,6 +74,10 @@ namespace Robot.V2.Network
         }
 
         // JNI callback methods
+        /// <summary>
+        /// JNI callback method called when the server successfully starts
+        /// </summary>
+        /// <param name="port">Port number the server started on</param>
         public void onServerStarted(int port)
         {
             Utils.WriteLog(logTag, $"Server started on port: {port}");
@@ -69,12 +85,19 @@ namespace Robot.V2.Network
             OnServerStarted?.Invoke(port);
         }
 
+        /// <summary>
+        /// JNI callback method called when a client connects to the server
+        /// </summary>
+        /// <param name="socket">Java socket object representing the connected client</param>
         public void onClientConnected(AndroidJavaObject socket)
         {
             Utils.WriteLog(logTag, "Client connected: " + socket);
             LogWindow.Info("Client connected to TCP server");
         }
 
+        /// <summary>
+        /// JNI callback method called when a client disconnects from the server
+        /// </summary>
         public void onClientDisconnected()
         {
             Utils.WriteLog(logTag, "Client disconnected");
@@ -82,6 +105,11 @@ namespace Robot.V2.Network
             OnClientDisconnected?.Invoke();
         }
 
+        /// <summary>
+        /// JNI callback method called when data is received from a connected client
+        /// </summary>
+        /// <param name="data">Received data as byte array</param>
+        /// <param name="length">Length of the received data</param>
         public void onDataReceived(byte[] data, int length)
         {
             Utils.WriteLog(logTag, "Received data of length: " + length);
@@ -92,6 +120,11 @@ namespace Robot.V2.Network
             Utils.WriteLog(logTag, "onDataReceived invoked");
         }
 
+        /// <summary>
+        /// JNI callback method called when an error occurs in the TCP server
+        /// </summary>
+        /// <param name="errorMessage">Error message from the Java layer</param>
+        /// <param name="exception">Java exception object</param>
         public void onError(string errorMessage, AndroidJavaObject exception)
         {
             Utils.WriteLog(logTag, "Server error: " + errorMessage);
@@ -99,6 +132,9 @@ namespace Robot.V2.Network
             OnError?.Invoke($"{errorMessage} - {exception}");
         }
 
+        /// <summary>
+        /// JNI callback method called when the server is stopped
+        /// </summary>
         public void onServerStopped()
         {
             Utils.WriteLog(logTag, "Server stopped");

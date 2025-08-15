@@ -16,6 +16,13 @@ public class Main : MonoBehaviour
         // PXR_Enterprise.SwitchSystemFunction(SystemFunctionSwitchEnum.SFS_SECURITY_ZONE_PERMANENTLY, SwitchEnum.S_OFF);
     }
 
+    /// <summary>
+    /// Handles log messages received from the Unity logging system
+    /// Displays errors as toast messages and pushes all logs to the LogView
+    /// </summary>
+    /// <param name="condition">The log message</param>
+    /// <param name="stackTrace">The stack trace if available</param>
+    /// <param name="type">The type of log message (Error, Warning, Log, etc.)</param>
     private void OnLogMessageReceived(string condition, string stackTrace, LogType type)
     {
         LogView.Push(condition, stackTrace, type);

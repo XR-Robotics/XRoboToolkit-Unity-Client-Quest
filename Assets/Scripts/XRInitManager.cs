@@ -23,6 +23,11 @@ namespace Robot
             }
         }
 
+        /// <summary>
+        /// Initializes XR with a delay to ensure all systems are ready
+        /// Waits for XR system to complete initialization and logs device information
+        /// </summary>
+        /// <returns>Coroutine enumerator</returns>
         private System.Collections.IEnumerator InitializeXRDelayed()
         {
             Debug.Log("XRInitManager: Starting XR initialization...");
@@ -32,52 +37,55 @@ namespace Robot
 
             // try
             // {
-                // Check if XR is already initialized
-                if (XRGeneralSettings.Instance != null &&
-                    XRGeneralSettings.Instance.Manager != null &&
-                    XRGeneralSettings.Instance.Manager.isInitializationComplete)
-                {
-                    Debug.Log("XRInitManager: XR already initialized");
-                    _isInitialized = true;
-                }
-                else
-                {
-                    Debug.Log("XRInitManager: Waiting for XR initialization...");
+            // Check if XR is already initialized
+            if (XRGeneralSettings.Instance != null &&
+                XRGeneralSettings.Instance.Manager != null &&
+                XRGeneralSettings.Instance.Manager.isInitializationComplete)
+            {
+                Debug.Log("XRInitManager: XR already initialized");
+                _isInitialized = true;
+            }
+            else
+            {
+                Debug.Log("XRInitManager: Waiting for XR initialization...");
 
-                    // Wait up to 10 seconds for XR to initialize
-                    float waitTime = 0f;
-                    while (!_isInitialized && waitTime < 10f)
+                // Wait up to 10 seconds for XR to initialize
+                float waitTime = 0f;
+                while (!_isInitialized && waitTime < 10f)
+                {
+                    if (XRGeneralSettings.Instance != null &&
+                        XRGeneralSettings.Instance.Manager != null &&
+                        XRGeneralSettings.Instance.Manager.isInitializationComplete)
                     {
-                        if (XRGeneralSettings.Instance != null &&
-                            XRGeneralSettings.Instance.Manager != null &&
-                            XRGeneralSettings.Instance.Manager.isInitializationComplete)
-                        {
-                            _isInitialized = true;
-                            Debug.Log("XRInitManager: XR initialization detected");
-                        }
-
-                        yield return new WaitForSeconds(0.1f);
-                        waitTime += 0.1f;
+                        _isInitialized = true;
+                        Debug.Log("XRInitManager: XR initialization detected");
                     }
 
-                    if (!_isInitialized)
-                    {
-                        Debug.LogWarning("XRInitManager: XR initialization timed out");
-                    }
+                    yield return new WaitForSeconds(0.1f);
+                    waitTime += 0.1f;
                 }
 
-                // Log available XR devices
-                LogXRDevices();
+                if (!_isInitialized)
+                {
+                    Debug.LogWarning("XRInitManager: XR initialization timed out");
+                }
+            }
 
-                // Log subsystems
-                LogXRSubsystems();
+            // Log available XR devices
+            LogXRDevices();
+
+            // Log subsystems
+            LogXRSubsystems();
             // }
             // catch (System.Exception e)
             // {
-                // Debug.LogError($"XRInitManager: Error during XR initialization: {e.Message}");
+            // Debug.LogError($"XRInitManager: Error during XR initialization: {e.Message}");
             // }
         }
 
+        /// <summary>
+        /// Logs all available XR input devices and their characteristics
+        /// </summary>
         private void LogXRDevices()
         {
             try
@@ -97,6 +105,9 @@ namespace Robot
             }
         }
 
+        /// <summary>
+        /// Logs information about active XR subsystems, including hand tracking
+        /// </summary>
         private void LogXRSubsystems()
         {
             try
@@ -128,6 +139,9 @@ namespace Robot
             }
         }
 
+        /// <summary>
+        /// Gets whether XR has been successfully initialized
+        /// </summary>
         public bool IsXRInitialized => _isInitialized;
 
         /// <summary>

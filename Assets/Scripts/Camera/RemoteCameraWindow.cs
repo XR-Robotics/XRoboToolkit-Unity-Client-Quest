@@ -40,6 +40,15 @@ public class RemoteCameraWindow : MonoBehaviour
         transform.rotation = Camera.main.transform.rotation;
     }
 
+    /// <summary>
+    /// Starts listening for remote camera data with specified parameters
+    /// Initializes the Quest plugin for video streaming
+    /// </summary>
+    /// <param name="width">Video width resolution</param>
+    /// <param name="height">Video height resolution</param>
+    /// <param name="fps">Video frame rate</param>
+    /// <param name="bitrate">Video bitrate</param>
+    /// <param name="port">Network port for video streaming</param>
     public void StartListen(int width, int height, int fps, int bitrate, int port)
     {
         _resolutionWidth = width;
@@ -63,6 +72,9 @@ public class RemoteCameraWindow : MonoBehaviour
         TcpHandler.SendFunctionValue("StopReceivePcCamera", "");
     }
 
+    /// <summary>
+    /// Handles the close button action - stops camera, cleans up resources and hides window
+    /// </summary>
     public void OnCloseBtn()
     {
         // Reset listen button
@@ -74,6 +86,12 @@ public class RemoteCameraWindow : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Coroutine to initialize camera listening on specified port
+    /// Sets up texture, media decoder and sends camera parameters to server
+    /// </summary>
+    /// <param name="port">Port to listen on</param>
+    /// <returns>Coroutine enumerator</returns>
     public IEnumerator OnStartListen(int port)
     {
         Debug.Log("StartListen port:" + port);

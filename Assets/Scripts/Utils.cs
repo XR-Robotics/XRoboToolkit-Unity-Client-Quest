@@ -7,6 +7,10 @@ namespace Robot
 {
     public class Utils
     {
+        /// <summary>
+        /// Gets the current timestamp in microseconds since Unix epoch (January 1, 1970)
+        /// </summary>
+        /// <returns>Current timestamp in microseconds</returns>
         public static long GetCurrentTimestamp()
         {
             DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -14,6 +18,10 @@ namespace Robot
             return currentTimestamp;
         }
 
+        /// <summary>
+        /// Gets the local IPv4 address of the machine
+        /// </summary>
+        /// <returns>Local IPv4 address as a string, or "Not found" if none available</returns>
         //Obtain the local IPv4 address
         public static string GetLocalIPv4()
         {
@@ -53,6 +61,10 @@ namespace Robot
             }
         }
 
+        /// <summary>
+        /// Gets an automatically assigned available port from the system
+        /// </summary>
+        /// <returns>An available port number</returns>
         public static int GetAvailablePort()
         {
             TcpListener listener = new TcpListener(IPAddress.Loopback, 0); // 传入 0 让系统自动分配可用端口
@@ -62,6 +74,12 @@ namespace Robot
             return port;
         }
 
+        /// <summary>
+        /// Gets camera intrinsics as a formatted string for external devices
+        /// </summary>
+        /// <param name="width">Camera width</param>
+        /// <param name="height">Camera height</param>
+        /// <returns>Camera intrinsics string in scientific notation format</returns>
         public static string GetCameraIntrinsicsStrE(int width, int height)
         {
             string cameraIntrinsics = "";
@@ -79,6 +97,10 @@ namespace Robot
             return cameraIntrinsics;
         }
 
+        /// <summary>
+        /// Gets camera extrinsics (left and right camera parameters) as a formatted string
+        /// </summary>
+        /// <returns>Camera extrinsics string with left and right parameters separated by '|'</returns>
         public static string GetCameraExtrinsicsStrE()
         {
             // PXR_EnterprisePlugin.GetCameraExtrinsics(out var leftExtrinsics, out var rightExtrinsics);
@@ -110,7 +132,13 @@ namespace Robot
             //
             return cameraExtrinsics;
         }
-        
+
+        /// <summary>
+        /// Writes a formatted log message with tag and message content
+        /// Uses colored output in Unity Editor and standard logcat format in builds
+        /// </summary>
+        /// <param name="tag">The tag to identify the log source</param>
+        /// <param name="msg">The message content to log</param>
         public static void WriteLog(string tag, string msg)
         {
 #if UNITY_EDITOR

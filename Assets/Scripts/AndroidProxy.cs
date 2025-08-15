@@ -8,6 +8,10 @@ public class AndroidProxy : MonoBehaviour
     private Queue<string> _androidMassages = new Queue<string>();
     public static event Action<string, string> CallBack;
 
+    /// <summary>
+    /// Receives messages from Android native code and queues them for processing
+    /// </summary>
+    /// <param name="msg">Message string from Android, format: "key|value"</param>
     public void AndroidCall(string msg)
     {
         Debug.Log("AndroidCall:" + msg);

@@ -14,6 +14,9 @@ namespace XRoboToolkit.Network
         public int length;
         public byte[] data;
 
+        /// <summary>
+        /// Default constructor that initializes empty protocol data
+        /// </summary>
         public NetworkDataProtocol()
         {
             command = string.Empty;
@@ -21,6 +24,12 @@ namespace XRoboToolkit.Network
             data = new byte[0];
         }
 
+        /// <summary>
+        /// Constructor that creates protocol data with command and data payload
+        /// Automatically calculates length from data array
+        /// </summary>
+        /// <param name="command">Command string for the protocol</param>
+        /// <param name="data">Data payload as byte array</param>
         public NetworkDataProtocol(string command, byte[] data)
         {
             this.command = command ?? string.Empty;
@@ -28,6 +37,13 @@ namespace XRoboToolkit.Network
             this.length = this.data.Length;
         }
 
+        /// <summary>
+        /// Constructor that creates protocol data with command, explicit length, and data payload
+        /// Allows specifying length independently of data array size
+        /// </summary>
+        /// <param name="command">Command string for the protocol</param>
+        /// <param name="length">Explicit length value for the protocol</param>
+        /// <param name="data">Data payload as byte array</param>
         public NetworkDataProtocol(string command, int length, byte[] data)
         {
             this.command = command ?? string.Empty;

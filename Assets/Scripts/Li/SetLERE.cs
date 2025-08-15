@@ -3,17 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR;
 
 public class SetLERE : MonoBehaviour
 {
 
-    public GameObject CanvLE;
-    public GameObject CanvRE;
     public GameObject CanvCE;
     public RemoteCameraWindow remoteCameraWindow;
-    public Material matLE;
-
-    public Material matRE;
+    public Material matCE;
 
     //private float visibleRatio = 0.75f;
     //private float contentRatio = 0.88f;
@@ -35,8 +32,6 @@ public class SetLERE : MonoBehaviour
 
     public void ResetCanvases()
     {
-        CanvLE.SetActive(false);
-        CanvRE.SetActive(false);
         CanvCE.SetActive(false);
     }
 
@@ -50,51 +45,11 @@ public class SetLERE : MonoBehaviour
             var texture = remoteCameraWindow.Texture;
             if (texture != null)
             {
-                matLE.SetTexture("_mainRT", texture);
-                matRE.SetTexture("_mainRT", texture);
-
-                matLE.SetInt("_isLE", 1);
-                matRE.SetInt("_isLE", 0);
-
-                matLE.SetFloat("_visibleRatio", visibleRatio);
-                matRE.SetFloat("_visibleRatio", visibleRatio);
-                matLE.SetFloat("_contentRatio", contentRatio);
-                matRE.SetFloat("_contentRatio", contentRatio);
-                matLE.SetFloat("_heightCompressionFactor", heightCompressionFactor);
-                matRE.SetFloat("_heightCompressionFactor", heightCompressionFactor);
+                matCE.SetTexture("_mainRT", texture);
+                matCE.SetFloat("_visibleRatio", visibleRatio);
+                matCE.SetFloat("_contentRatio", contentRatio);
+                matCE.SetFloat("_heightCompressionFactor", heightCompressionFactor);
             }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            visibleRatio += 0.005f;
-            matLE.SetFloat("_visibleRatio", visibleRatio);
-            matRE.SetFloat("_visibleRatio", visibleRatio);
-            Debug.Log($"visibleRatio: {visibleRatio} - contentRatio: {contentRatio}");
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            visibleRatio -= 0.005f;
-            matLE.SetFloat("_visibleRatio", visibleRatio);
-            matRE.SetFloat("_visibleRatio", visibleRatio);
-            Debug.Log($"visibleRatio: {visibleRatio} - contentRatio: {contentRatio}");
-        }
-
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            contentRatio += 0.005f;
-            matLE.SetFloat("_contentRatio", contentRatio);
-            matRE.SetFloat("_contentRatio", contentRatio);
-            Debug.Log($"visibleRatio: {visibleRatio} - contentRatio: {contentRatio}");
-        }
-
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            contentRatio -= 0.005f;
-            matLE.SetFloat("_contentRatio", contentRatio);
-            matRE.SetFloat("_contentRatio", contentRatio);
-            Debug.Log($"visibleRatio: {visibleRatio} - contentRatio: {contentRatio}");
         }
     }
 }

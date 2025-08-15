@@ -1,41 +1,4 @@
 ﻿# Video Stream Source Configuration
-- name: "PICO4U"
-  camera: "VR"
-  description: "PICO4U Video Stream Source"
-  properties:
-    - name: "visibleRatio"
-      type: "float"
-      description: "Visible ratio for the shader"
-      value: 0.555
-    - name: "contentRatio"
-      type: "float"
-      description: "Content ratio for the shader"
-      value: 1.8
-    - name: "heightCompressionFactor"
-      type: "float"
-      description: "Height compression factor for the shader"
-      value: 1.333333 # 4/3
-    - name: "RawImageRectSize"
-      type: "string"
-      description: "Size of the RawImage rectangle for the stereo view"
-      value: "600x225"
-    - name: "CamWidth"
-      type: "int"
-      description: "Camera width for the video stream"
-      value: 2160
-    - name: "CamHeight"
-      type: "int"
-      description: "Camera height for the video stream"
-      value: 810
-    - name: "CamFPS"
-      type: "int"
-      description: "Frame rate of the video stream in FPS"
-      value: 60
-    - name: "CamBitrate"
-      type: "int"
-      description: "Bitrate of the video stream in bps"
-      value: 20971520 # 20 x 1024 x 1024
-  
 - name: "ZEDMINI"
   camera: "ZED"
   description: "ZED MINI Video Stream Source"
@@ -43,11 +6,11 @@
     - name: "visibleRatio"
       type: "float"
       description: "Visible ratio for the shader"
-      value: 0.439464
+      value: 0.46747
     - name: "contentRatio"
       type: "float"
       description: "Content ratio for the shader"
-      value: 1.704850
+      value: 1.58458
     - name: "heightCompressionFactor"
       type: "float"
       description: "Frame rate of the video stream in FPS"
@@ -72,3 +35,40 @@
       type: "int"
       description: "Bitrate of the video stream in bps"
       value: 4000000
+
+- name: "PICO4U"
+  camera: "VR"
+  description: "PICO4U Video Stream Source"
+  properties:
+    - name: "visibleRatio"
+      type: "float"
+      description: "Visible ratio for the shader"
+      value: 0.61793
+    - name: "contentRatio"
+      type: "float"
+      description: "Content ratio for the shader"
+      value: 1.60247
+    - name: "heightCompressionFactor"
+      type: "float"
+      description: "Height compression factor for the shader"
+      value: 1.333333 # 4/3
+    - name: "RawImageRectSize"
+      type: "string"
+      description: "Size of the RawImage rectangle for the stereo view"
+      value: "600x225"
+    - name: "CamWidth"
+      type: "int"
+      description: "Camera width for the video stream"
+      value: 2160
+    - name: "CamHeight"
+      type: "int"
+      description: "Camera height for the video stream"
+      value: 810
+    - name: "CamFPS"
+      type: "int"
+      description: "Frame rate of the video stream in FPS"
+      value: 60
+    - name: "CamBitrate"
+      type: "int"
+      description: "Bitrate of the video stream in bps"
+      value: 20971520 # 20 x 1024 x 1024

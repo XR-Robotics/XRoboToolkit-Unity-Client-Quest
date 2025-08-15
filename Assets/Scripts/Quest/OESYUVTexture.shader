@@ -59,25 +59,33 @@ Shader "NativeOpenGLRender/OESYUVTexture"
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
                 fixed4 col = tex2D(_MainTex, i.uv);
-                
-                // Apply proper YUV to RGB conversion for MediaDecoder output
-                // MediaDecoder typically outputs in YUV420 format
-                float y = col.r;
-                float u = col.g - 0.5;
-                float v = col.b - 0.5;
-                
-                // // ITU-R BT.601 conversion matrix
-                // fixed3 rgb;
-                // rgb.r = saturate(y + 1.402 * v);
-                // rgb.g = saturate(y - 0.344 * u - 0.714 * v);
-                // rgb.b = saturate(y + 1.772 * u);
 
-                // BT.709 conversion matrix
-                fixed3 rgb;
-                rgb.r = saturate(y + 1.5748 * v);
-                rgb.g = saturate(y - 0.1873 * u - 0.4681 * v);
-                rgb.b = saturate(y + 1.8556 * u);
-                
+                // MediaDecoder typically outputs limited-range YUV
+                float y = col.r * 255.0;
+                float u = col.g * 255.0 - 128.0;
+                float v = col.b * 255.0 - 128.0;
+
+                // Normalize limited-range YUV values
+                y = (y - 16.0) / 219.0;
+                u = u / 224.0;
+                v = v / 224.0;
+
+                // YUV to sRGB conversion
+                float3 rgb;
+                rgb.r = y + 1.13983 * v;
+                rgb.g = y - 0.39465 * u - 0.58060 * v;
+                rgb.b = y + 2.03211 * u;
+
+                // Clamp RGB to avoid over/underflow
+                rgb = clamp(rgb, 0.0, 1.0);
+
+                // Convert sRGB to Linear space if Unity is using Linear color space
+                #ifdef UNITY_COLORSPACE_GAMMA
+                // Do nothing, already in gamma
+                #else
+                    rgb = GammaToLinearSpace(rgb);
+                #endif
+
                 return fixed4(rgb, col.a);
             }
             ENDCG

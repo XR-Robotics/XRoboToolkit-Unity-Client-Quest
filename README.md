@@ -32,7 +32,7 @@
 | Remote Vision - Listen                         | Open a connection to receive the video stream to the selected video source                   |
 | Data Collection - Tracking                     | Whether to record pose tracking data                                                         |
 | Data Collection - Vision                       | Whether to record vision data, Not available yet                                             |
-| Data Collection - Record                       | Start/Stop data                                                                              |
+| Data Collection - Record                       | Start/Stop recording                                                                         |
 | Log                                            | Show logs                                                                                    |
 
 ## Feature list

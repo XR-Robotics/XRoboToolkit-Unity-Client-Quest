@@ -1,12 +1,12 @@
 # XRoboToolkit-Unity-Client-Quest Project Documentation
 
-> This is the corresponding Unity client for Quest headset of the [XRoboToolkit-Unity-Client](https://github.com/XR-Robotics/XRoboToolkit-Unity-Client).
+> This is the corresponding Unity client for Meta Quest headset of the [XRoboToolkit-Unity-Client](https://github.com/XR-Robotics/XRoboToolkit-Unity-Client).
 
 > The corresponding Android project for networking, decoding, and rendering is [RobotVisionUnityPluginQuest
 ](https://github.com/XR-Robotics/RobotVisionUnityPluginQuest). 
 
 ## Project Overview
-`XRoboToolkit-Unity-Client-Quest` is a Unity-based software developed for Quest devices to facilitate robot training and remote teleoperation. It works in conjunction with PC-side software to achieve robot training and teleoperation functionalities.
+`XRoboToolkit-Unity-Client-Quest` is a Unity-based software developed for Meta Quest devices to facilitate robot training and remote teleoperation. It works in conjunction with PC-side software to achieve robot training and teleoperation functionalities.
 
 ## Unity UI Main Panel Reference
 

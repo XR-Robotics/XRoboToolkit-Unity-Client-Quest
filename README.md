@@ -90,12 +90,12 @@ On the main panel, select preferred pose data to be collected, click Record. Rec
 ## Project Configuration
 
 ### Environment Requirements
-- Unity 2021.3.45f1
+- Unity 2021.3.45f2
 - Meta XR Interaction SDK 72.0.0 (com.meta.xr.sdk.interaction.ovr)
 - Oculus XR Plugin 3.4.1 (com.unity.xr.oculus)
 
 **Important Notes**:
-1. Use exact Unity version 2021.3.45f1 to avoid compatibility issues
+1. Use exact Unity version 2021.3.45f2 to avoid compatibility issues
 2. Complete Android module installation during Unity setup
 
 ### Architecture Overview
